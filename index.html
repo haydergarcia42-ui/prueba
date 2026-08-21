@@ -1,0 +1,856 @@
+<!DOCTYPE html><html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#008cff">
+<title>HG.MUSIC</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+ min-height:100vh;font-family:Arial,sans-serif;color:#fff;overflow-x:hidden;
+ --cp:rgba(0,140,255,.22);--cs:rgba(70,30,255,.2);--cb:#008cff;
+ background:radial-gradient(circle at 10% 0%,var(--cp),transparent 30%),radial-gradient(circle at 90% 100%,var(--cs),transparent 30%),linear-gradient(135deg,#050505,#0b0b0b,#050505)
+}
+body.claro{color:#111;background:radial-gradient(circle at 10% 0%,var(--cp),transparent 35%),radial-gradient(circle at 90% 100%,var(--cs),transparent 35%),linear-gradient(135deg,#eef5ff,#fff,#edf1ff)}
+button,input{font-family:inherit}
+button{user-select:none}
+
+body:before,body:after{
+ content:"";position:fixed;width:420px;height:420px;filter:blur(180px);
+ opacity:.55;pointer-events:none;z-index:-1;will-change:transform
+}
+body:before{background:var(--cp);top:-180px;left:-180px;animation:f1 22s ease-in-out infinite alternate}
+body:after{background:var(--cs);bottom:-180px;right:-180px;animation:f2 26s ease-in-out infinite alternate}
+@keyframes f1{0%{transform:translate(0,0)}50%{transform:translate(25px,18px) scale(1.04)}100%{transform:translate(-15px,30px)}}
+@keyframes f2{0%{transform:translate(0,0)}50%{transform:translate(-20px,-18px) scale(1.04)}100%{transform:translate(18px,-28px)}}
+
+/* INICIO */
+#inicio{
+ position:fixed;inset:0;height:100dvh;background:radial-gradient(circle,#151515,#050505 75%);
+ display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;
+ transition:opacity .8s,visibility .8s
+}
+.logo-text,header h1{
+ font-weight:900;font-family:Georgia,serif;font-style:italic;
+ background:linear-gradient(90deg,var(--cb),#0ff,#8a2be2,#f0f,var(--cb));
+ background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;
+ animation:colores 10s linear infinite
+}
+.logo-text{font-size:clamp(40px,12vw,62px);letter-spacing:clamp(2px,1.5vw,6px);animation:entrada 1.2s ease,colores 10s linear infinite}
+@keyframes entrada{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes colores{0%{background-position:0}50%{background-position:100%}100%{background-position:0}}
+
+.cargando{
+ width:52px;height:52px;margin-top:30px;border-radius:50%;
+ border:5px solid rgba(255,255,255,.12);border-top-color:var(--cb);border-right-color:#0ff;
+ animation:cargar 1.7s linear infinite;will-change:transform
+}
+@keyframes cargar{to{transform:rotate(360deg)}}
+.texto-inicio{margin-top:18px;font-size:12px;letter-spacing:3px;color:#888}
+#inicio.oculto{opacity:0;visibility:hidden}
+
+/* HEADER */
+header{text-align:center;padding:18px 15px 10px;position:relative}
+header h1{margin:0;font-size:clamp(30px,8vw,44px);letter-spacing:2px}
+.ajustes{
+ position:absolute;right:15px;top:18px;width:45px;height:45px;border:0;border-radius:50%;
+ background:rgba(255,255,255,.1);color:#fff;font-size:21px;cursor:pointer;transition:.2s
+}
+.ajustes:active{transform:rotate(35deg) scale(.9)}
+body.claro .ajustes,body.claro .boton{color:#111;background:rgba(0,0,0,.08)}
+
+/* MENU */
+.menu-colores{
+ position:fixed;top:72px;right:14px;width:min(260px,calc(100vw - 28px));
+ max-height:calc(100vh - 90px);overflow:auto;padding:18px;background:rgba(15,18,25,.96);
+ border:1px solid rgba(255,255,255,.12);border-radius:22px;backdrop-filter:blur(25px);
+ box-shadow:0 20px 70px #000a;z-index:5000;opacity:0;visibility:hidden;
+ transform:translateY(-10px) scale(.95);transition:.25s
+}
+.menu-colores.abierto{opacity:1;visibility:visible;transform:none}
+.menu-colores h3{margin:0 0 15px;text-align:center}
+.menu-seccion{border-top:1px solid #ffffff14;padding-top:13px;margin-top:13px}
+.menu-seccion small{color:#999;display:block;margin-bottom:10px}
+.colores{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.color{width:46px;height:46px;border-radius:50%;border:3px solid #fff4;cursor:pointer}
+.azul{background:#08f}.morado{background:#8a2be2}.rosado{background:#ff1493}
+.amarillo{background:#ffd000}.verde{background:#1ed760}.rojo{background:#ff3030}
+.opciones-ajuste{display:grid;gap:8px}
+.opcion-ajuste{border:0;border-radius:12px;padding:10px;color:#fff;background:#ffffff14;cursor:pointer}
+body.claro .menu-colores{background:#fffffff2;color:#111}
+
+/* BUSCADOR */
+.busqueda{width:min(calc(100% - 28px),560px);margin:10px auto 18px;position:relative}
+.busqueda input{
+ width:100%;padding:15px 18px 15px 45px;border:1px solid #fff1;outline:0;border-radius:18px;
+ background:#ffffff0f;color:#fff;font-size:15px
+}
+.busqueda input:focus{border-color:var(--cb);box-shadow:0 0 0 3px #008cff14}
+body.claro .busqueda input{color:#111;background:#0000000d}
+.icono-busqueda{position:absolute;left:16px;top:13px;font-size:20px}
+
+/* REPRODUCTOR */
+.musica{
+ width:min(calc(100% - 28px),500px);margin:12px auto 30px;padding:clamp(18px,5vw,30px);
+ background:#ffffff10;border:1px solid #fff2;border-radius:clamp(20px,5vw,30px);
+ backdrop-filter:blur(25px);box-shadow:0 25px 70px #0009;text-align:center;position:relative;z-index:2
+}
+.portada{
+ width:min(75vw,330px);aspect-ratio:1;margin:auto;border-radius:clamp(14px,4vw,24px);
+ overflow:hidden;background:#181818;box-shadow:0 18px 55px #0009;transition:.5s
+}
+.portada.reproduciendo{transform:scale(1.015);box-shadow:0 20px 65px var(--cp)}
+.portada img{width:100%;height:100%;display:block;object-fit:cover}
+.titulo{margin-top:22px;font-size:clamp(23px,6vw,30px);font-weight:800}
+.artista{margin-top:8px;color:#999;font-size:14px}
+
+/* BARRA */
+.barra{width:100%;height:8px;margin-top:24px;background:#ffffff21;border-radius:20px;overflow:hidden;cursor:pointer;touch-action:none}
+.progreso{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--cb),#0ff,#8a2be2,#f0f);position:relative}
+.progreso:after{
+ content:"";position:absolute;right:-5px;top:50%;width:10px;height:10px;border-radius:50%;
+ background:#fff;transform:translateY(-50%);box-shadow:0 0 10px var(--cb)
+}
+.tiempo{display:flex;justify-content:space-between;margin-top:8px;color:#888;font-size:12px}
+
+/* CONTROLES */
+.controles{display:flex;justify-content:center;align-items:center;gap:clamp(18px,6vw,30px);margin-top:24px}
+.boton,.play{border:0;cursor:pointer;display:flex;justify-content:center;align-items:center}
+.boton{width:55px;height:55px;border-radius:50%;background:#ffffff1a;color:#fff;font-size:21px}
+.play{
+ width:76px;height:76px;border-radius:50%;color:#000;font-size:29px;
+ background:linear-gradient(135deg,var(--cb),#0ff,#8a2be2);box-shadow:0 0 30px #0096ff4d
+}
+.boton:active,.play:active{transform:scale(.91)}
+
+.extra-controles{display:flex;justify-content:center;gap:9px;margin-top:15px;flex-wrap:wrap}
+.extra{border:0;padding:9px 13px;border-radius:13px;background:#ffffff12;color:#fff;cursor:pointer;font-size:12px}
+.extra.activo{background:var(--cb);color:#000}
+
+.volumen{display:flex;align-items:center;gap:8px;margin-top:14px}
+.volumen input{flex:1;accent-color:var(--cb)}
+
+/* ECUALIZADOR REAL */
+.ecualizador{
+ height:55px;margin-top:14px;display:flex;justify-content:center;align-items:flex-end;gap:5px;
+ opacity:.9;overflow:hidden
+}
+.ecualizador span{
+ width:5px;height:7px;min-height:5px;border-radius:8px;background:var(--cb);
+ transform-origin:bottom;will-change:height,transform,opacity;
+ box-shadow:0 0 8px var(--cb)
+}
+.ecualizador.activo span{animation:brilloEQ .45s ease-in-out infinite alternate}
+@keyframes brilloEQ{from{opacity:.55}to{opacity:1}}
+.estado-reproduccion{margin-top:10px;font-size:11px;color:#777;min-height:15px}
+.temporizador-info{text-align:center;margin-top:12px;font-size:12px;color:#888;min-height:15px}
+
+/* PANELES */
+.panel{width:min(calc(100% - 28px),560px);margin:0 auto 22px}
+.panel h2{font-size:20px;margin:0 0 13px}
+.panel-vacio{padding:18px;border-radius:16px;background:#ffffff0d;color:#888;text-align:center}
+
+/* CANCIONES */
+.cancion{
+ width:100%;min-height:76px;display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;
+ background:#ffffff0e;border:1px solid #fff0d;border-radius:17px;cursor:pointer;user-select:none;
+ transition:.2s
+}
+.cancion:hover{background:#ffffff17}
+.cancion.actual{border-color:var(--cb);background:#ffffff1a}
+.cancion:active{transform:scale(.98)}
+.mini-portada{width:60px;height:60px;min-width:60px;border-radius:12px;overflow:hidden;background:#181818}
+.mini-portada img{width:100%;height:100%;object-fit:cover}
+.info{flex:1;min-width:0;text-align:left}
+.nombre{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.artista-lista{margin-top:5px;color:#888;font-size:12px}
+.play-lista{width:38px;text-align:center;font-size:18px;color:var(--cb)}
+.fav{border:0;background:none;color:#aaa;font-size:21px;cursor:pointer}
+.fav.activo{color:#ff3b81}
+
+/* PLAYLIST */
+.crear-playlist{display:flex;gap:8px}
+.crear-playlist input{flex:1;border:0;outline:0;border-radius:12px;padding:12px;background:#ffffff12;color:#fff}
+.crear-playlist button{border:0;border-radius:12px;padding:0 15px;background:var(--cb);color:#000;font-weight:bold}
+.playlist-caja{background:#ffffff0f;padding:15px;border-radius:16px;margin-bottom:10px;cursor:pointer}
+.playlist-titulo{font-weight:bold}.playlist-cantidad{margin-top:8px;color:#888;font-size:12px}
+
+/* MODALES */
+.modal{
+ position:fixed;inset:0;display:flex;justify-content:center;align-items:center;padding:20px;
+ background:#000a;backdrop-filter:blur(10px);z-index:8000;opacity:0;visibility:hidden;transition:.25s
+}
+.modal.abierto{opacity:1;visibility:visible}
+.modal-caja{width:min(400px,100%);padding:22px;border-radius:22px;background:#141414;border:1px solid #fff2;box-shadow:0 25px 80px #000b}
+.modal h3{margin-top:0}
+.modal-opciones{display:grid;gap:9px}
+.modal-opcion{border:0;border-radius:13px;padding:13px;color:#fff;background:#ffffff14;cursor:pointer;text-align:left}
+.modal-cerrar{width:100%;margin-top:15px;padding:12px;border:0;border-radius:13px;background:var(--cb);color:#000;font-weight:bold}
+
+@media(min-width:600px){.musica{max-width:520px}.portada{width:360px}}
+@media(min-width:900px){.musica{max-width:540px}.portada{width:380px}}
+</style></head><body><div id="inicio">
+ <div class="logo-text">HG.MUSIC</div>
+ <div class="cargando"></div>
+ <div class="texto-inicio">CARGANDO MÚSICA...</div>
+</div><header>
+ <h1>HG.MUSIC</h1>
+ <button class="ajustes" id="botonAjustes">⚙️</button> <div class="menu-colores" id="menuColores">
+  <h3>🎨 Personalizar</h3>
+  <div class="menu-seccion">
+   <small>Color de presentación</small>
+   <div class="colores">
+    <button class="color azul" data-color="azul"></button>
+    <button class="color morado" data-color="morado"></button>
+    <button class="color rosado" data-color="rosado"></button>
+    <button class="color amarillo" data-color="amarillo"></button>
+    <button class="color verde" data-color="verde"></button>
+    <button class="color rojo" data-color="rojo"></button>
+   </div>
+  </div>
+  <div class="menu-seccion">
+   <small>Interfaz</small>
+   <div class="opciones-ajuste">
+    <button class="opcion-ajuste" id="modoBtn">🌙 Modo oscuro</button>
+    <button class="opcion-ajuste" id="guardarBtn">💾 Guardar preferencias</button>
+   </div>
+  </div>
+ </div>
+</header><div class="busqueda">
+ <span class="icono-busqueda">🔎</span>
+ <input id="buscador" type="search" placeholder="Buscar canciones..." autocomplete="off">
+</div><div class="musica" id="reproductor">
+ <div class="portada" id="portadaCaja"><img id="portada" src="" alt="Portada"></div>
+ <div class="titulo" id="titulo"></div>
+ <div class="artista" id="artista"></div> <audio id="audio" preload="metadata" crossorigin="anonymous">
+  <source id="archivo" src="" type="audio/mpeg">
+ </audio> <div class="ecualizador" id="ecualizador">
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span>
+ </div> <div class="estado-reproduccion" id="estadoReproduccion">Listo para reproducir</div> <div class="barra" id="barra"><div class="progreso" id="progreso"></div></div> <div class="tiempo">
+  <span id="actual">0:00</span>
+  <span id="duracion">0:00</span>
+ </div> <div class="controles">
+  <button class="boton" onclick="anterior()">⏮</button>
+  <button class="play" id="play" onclick="reproducir()">▶</button>
+  <button class="boton" onclick="siguiente()">⏭</button>
+ </div> <div class="extra-controles">
+  <button class="extra" id="aleatorioBtn" onclick="alternarAleatorio()">🔀 Aleatorio</button>
+  <button class="extra" id="repetirBtn" onclick="alternarRepetir()">🔁 Repetir</button>
+  <button class="extra" onclick="agregarFavoritoActual()">❤️ Favorito</button>
+  <button class="extra" onclick="abrirVelocidad()">⏩ Velocidad</button>
+  <button class="extra" onclick="abrirTemporizador()">😴 Dormir</button>
+ </div> <div class="volumen">
+  <span>🔊</span>
+  <input id="volumen" type="range" min="0" max="1" step=".01" value="1">
+ </div> <div class="temporizador-info" id="temporizadorInfo"></div>
+</div><div class="panel"><h2>🎶 Tus canciones</h2><div id="lista"></div></div>
+<div class="panel"><h2>❤️ Favoritos</h2><div id="favoritos"></div></div>
+<div class="panel"><h2>🕘 Historial</h2><div id="historial"></div></div>
+<div class="panel"><h2>📋 Cola de reproducción</h2><div id="cola"></div></div><div class="panel">
+ <h2>📁 Mis playlists</h2>
+ <div class="crear-playlist">
+  <input id="nombrePlaylist" placeholder="Nombre de playlist">
+  <button onclick="crearPlaylist()">Crear</button>
+ </div>
+ <div id="playlists" style="margin-top:12px"></div>
+</div><div class="modal" id="modalVelocidad">
+ <div class="modal-caja">
+  <h3>⏩ Velocidad</h3>
+  <div class="modal-opciones">
+   <button class="modal-opcion" onclick="cambiarVelocidad(.5)">0.5x</button>
+   <button class="modal-opcion" onclick="cambiarVelocidad(.75)">0.75x</button>
+   <button class="modal-opcion" onclick="cambiarVelocidad(1)">1x — Normal</button>
+   <button class="modal-opcion" onclick="cambiarVelocidad(1.25)">1.25x</button>
+   <button class="modal-opcion" onclick="cambiarVelocidad(1.5)">1.5x</button>
+   <button class="modal-opcion" onclick="cambiarVelocidad(2)">2x</button>
+  </div>
+  <button class="modal-cerrar" onclick="cerrarModales()">Cerrar</button>
+ </div>
+</div><div class="modal" id="modalTemporizador">
+ <div class="modal-caja">
+  <h3>😴 Temporizador</h3>
+  <div class="modal-opciones">
+   <button class="modal-opcion" onclick="iniciarTemporizador(5)">5 minutos</button>
+   <button class="modal-opcion" onclick="iniciarTemporizador(10)">10 minutos</button>
+   <button class="modal-opcion" onclick="iniciarTemporizador(20)">20 minutos</button>
+   <button class="modal-opcion" onclick="iniciarTemporizador(30)">30 minutos</button>
+   <button class="modal-opcion" onclick="iniciarTemporizador(60)">1 hora</button>
+   <button class="modal-opcion" onclick="cancelarTemporizador()">❌ Cancelar temporizador</button>
+  </div>
+  <button class="modal-cerrar" onclick="cerrarModales()">Cerrar</button>
+ </div>
+</div><script>
+/* ================= CANCIONES ================= */
+
+const canciones=[
+{archivo:"https://res.cloudinary.com/lldcqgqk/video/upload/v1787263767/BLESSD_-_H_%C3%BCGALE_PUES_%C6%92%C3%86%C3%96_%C6%92%C3%B6%C3%91_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/lldcqgqk/image/upload/v1787267811/images_9%20hagale%20pues.jpg",nombre:"HÁGALE PUES",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/lldcqgqk/video/upload/v1787263767/BLESSD_-_UNA_Official_Video_MP3_160K.mp3",portada:"https://res.cloudinary.com/lldcqgqk/image/upload/v1787267814/descarga_2%20una.jpg",nombre:"UNA",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/lldcqgqk/video/upload/v1787263764/MENTE_POSITIVA___BLESSD_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/lldcqgqk/image/upload/v1787267816/images_8.jpg",nombre:"MENTE POSITIVA",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787273422/BLESSD_-_SUPERSTAR_E.M.H.D.M_Lyric_Video___CantoYo_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787273463/images.jpg",nombre:"SUPERSTAR",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787273603/BLESSD___PALABRAS_SOBRAN_VIAJE_2_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787273643/images_1.jpg",nombre:"PALABRAS SOBRAN",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787273843/BLESSD___INSTAGRAM_OFFICIAL_VIDEO_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787273867/images_2.jpg",nombre:"INSTAGRAM",artista:"BLESSD"},
+
+/* NUEVAS */
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787278210/AMISTA_VIDEO_OFICIAL___BLESSD_OVY_ON_THE_DRUMS_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787278341/Screenshot_20260825-211158.jpg",nombre:"AMISTA",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787278410/BLESSD_JUSTIN_QUILES_LENNY_TAVAREZ___MEDALLO_OFFICIAL_VIDEO_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787278453/ab67616d0000b273ddb522445d2dff08f65fdd33.jpg",nombre:"MEDALLO",artista:"BLESSD, JUSTIN QUILES & LENNY TAVÁREZ"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787278514/DOS_AMORES___BLESSD_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787278677/BLESSD_EL_PEOR_HOMBRE_DEL_MUNDO_album_crop_jytomc.jpg",nombre:"DOS AMORES",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787278774/BLESSD_-_CONDENADO_AL_%C3%89XITO_II_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787278819/Screenshot_20260825-212009.jpg",nombre:"CONDENADO AL ÉXITO II",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787278895/NEW_YORK___BLESSD_TRINIDAD_BENDITA_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787278958/0x1900-000000-80-0-0.jpg",nombre:"NEW YORK",artista:"BLESSD & TRINIDAD BENDITA"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787279080/YOGURCITO_REMIX___BLESSD_ANUEL_AA_YAN_BLOCK_LUAR_LA_L_ROA_KRIS_R_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787279123/ab67616d0000b2737c0a3b32051a3ca160de361a.jpg",nombre:"YOGURCITO REMIX",artista:"BLESSD, ANUEL AA, YAN BLOCK, LUAR LA L, ROA & KRIS R"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787279198/BARRIO_ANTIOQUIA_II___BLESSD_E.M.H.D.M_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787279246/41QLWxVyLGL._UXNaN_FMjpg_QL85_.jpg",nombre:"BARRIO ANTIOQUIA II",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787279315/SE_SUPONE___BLESSD_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787279348/ab67616d0000b273a7644b214e028f7459950b1b.jpg",nombre:"SE SUPONE",artista:"BLESSD"},
+{archivo:"https://res.cloudinary.com/bkthiift/video/upload/v1787279436/QUE_LIO___BLESSD_VIDEO_OFICIAL_MP3_160K.mp3",portada:"https://res.cloudinary.com/bkthiift/image/upload/v1787279471/ab67616d0000b273ef1268a0337de25edb1f9b05.jpg",nombre:"QUÉ LÍO",artista:"BLESSD"}
+];
+
+/* ================= VARIABLES ================= */
+
+let indice=0,aleatorio=false,repetir=false,cola=[];
+let favoritos=JSON.parse(localStorage.getItem("hg_favoritos")||"[]");
+let historial=JSON.parse(localStorage.getItem("hg_historial")||"[]");
+let playlists=JSON.parse(localStorage.getItem("hg_playlists")||"{}");
+let velocidad=Number(localStorage.getItem("hg_velocidad")||1);
+let temporizador=null,temporizadorFinal=0;
+
+/* ================= ELEMENTOS ================= */
+
+const audio=document.getElementById("audio");
+const archivo=document.getElementById("archivo");
+const portada=document.getElementById("portada");
+const portadaCaja=document.getElementById("portadaCaja");
+const play=document.getElementById("play");
+const progreso=document.getElementById("progreso");
+const barra=document.getElementById("barra");
+const actual=document.getElementById("actual");
+const duracion=document.getElementById("duracion");
+const titulo=document.getElementById("titulo");
+const artista=document.getElementById("artista");
+const lista=document.getElementById("lista");
+const favoritosDiv=document.getElementById("favoritos");
+const historialDiv=document.getElementById("historial");
+const playlistsDiv=document.getElementById("playlists");
+const colaDiv=document.getElementById("cola");
+const buscador=document.getElementById("buscador");
+const ecualizador=document.getElementById("ecualizador");
+const barras=[...ecualizador.querySelectorAll("span")];
+const volumen=document.getElementById("volumen");
+const estadoReproduccion=document.getElementById("estadoReproduccion");
+const temporizadorInfo=document.getElementById("temporizadorInfo");
+
+/* ================= CARGA ================= */
+
+setTimeout(()=>document.getElementById("inicio").classList.add("oculto"),3500);
+
+/* ================= ECUALIZADOR REAL ================= */
+
+let audioCtx=null,analizador=null,fuente=null,datos=null,eqActivo=false;
+
+function iniciarAnalizador(){
+ try{
+  if(audioCtx)return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  analizador=audioCtx.createAnalyser();
+  analizador.fftSize=128;
+  analizador.smoothingTimeConstant=.82;
+  datos=new Uint8Array(analizador.frequencyBinCount);
+  fuente=audioCtx.createMediaElementSource(audio);
+  fuente.connect(analizador);
+  analizador.connect(audioCtx.destination);
+ }catch(e){
+  audioCtx=null;
+ }
+}
+
+function animarEcualizador(){
+ if(!eqActivo)return;
+
+ if(analizador){
+  analizador.getByteFrequencyData(datos);
+
+  barras.forEach((b,i)=>{
+   const pos=Math.floor(i*(datos.length/barras.length));
+   const intensidad=datos[pos]/255;
+   const h=6+intensidad*48;
+   b.style.height=h+"px";
+   b.style.opacity=.45+intensidad*.55;
+   b.style.transform="scaleY("+(0.7+intensidad*.5)+")";
+  });
+ }else{
+  barras.forEach(b=>{
+   b.style.height=(7+Math.random()*38)+"px";
+   b.style.opacity=.5+Math.random()*.5;
+  });
+ }
+
+ requestAnimationFrame(animarEcualizador);
+}
+
+function activarEcualizador(){
+ eqActivo=true;
+ ecualizador.classList.add("activo");
+ if(!audioCtx)iniciarAnalizador();
+ if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();
+ requestAnimationFrame(animarEcualizador);
+}
+
+function detenerEcualizador(){
+ eqActivo=false;
+ ecualizador.classList.remove("activo");
+ barras.forEach(b=>{
+  b.style.height="7px";
+  b.style.opacity=".5";
+  b.style.transform="scaleY(.7)";
+ });
+}
+
+/* ================= CANCIÓN ================= */
+
+function cargarCancion(){
+ const c=canciones[indice];
+ archivo.src=c.archivo;
+ portada.src=c.portada;
+ titulo.textContent=c.nombre;
+ artista.textContent=c.artista;
+ audio.playbackRate=velocidad;
+ audio.load();
+ actualizarMediaSession();
+ mostrarLista(buscador.value);
+}
+
+function reproducir(){
+ if(audio.paused){
+  iniciarAnalizador();
+  if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();
+
+  audio.play().then(()=>{
+   agregarHistorial(indice);
+  }).catch(()=>{
+   estadoReproduccion.textContent="⚠️ No se pudo reproducir";
+  });
+ }else audio.pause();
+}
+
+function cambiarCancion(n){
+ if(n<0)n=canciones.length-1;
+ if(n>=canciones.length)n=0;
+ indice=n;
+ audio.pause();
+ cargarCancion();
+ progreso.style.width="0%";
+ actual.textContent="0:00";
+ duracion.textContent="0:00";
+ audio.play().catch(()=>{});
+}
+
+function siguiente(){
+ if(cola.length){
+  indice=cola.shift();
+  mostrarCola();
+  cambiarCancion(indice);
+  return;
+ }
+ if(aleatorio){
+  let n;
+  do n=Math.floor(Math.random()*canciones.length);while(canciones.length>1&&n===indice);
+  indice=n;
+ }else indice=(indice+1)%canciones.length;
+ cambiarCancion(indice);
+}
+
+function anterior(){
+ if(audio.currentTime>5){audio.currentTime=0;return}
+ indice=(indice-1+canciones.length)%canciones.length;
+ cambiarCancion(indice);
+}
+
+/* ================= AUDIO ================= */
+
+audio.addEventListener("play",()=>{
+ play.innerHTML="⏸";
+ portadaCaja.classList.add("reproduciendo");
+ estadoReproduccion.textContent="▶ Reproduciendo";
+ activarEcualizador();
+ actualizarMediaSessionPlayback();
+});
+
+audio.addEventListener("pause",()=>{
+ play.innerHTML="▶";
+ portadaCaja.classList.remove("reproduciendo");
+ detenerEcualizador();
+ if(audio.currentTime<audio.duration)estadoReproduccion.textContent="⏸ Pausado";
+ actualizarMediaSessionPlayback();
+});
+
+audio.addEventListener("ended",()=>{
+ if(repetir){audio.currentTime=0;audio.play();return}
+ siguiente();
+});
+
+audio.addEventListener("timeupdate",()=>{
+ if(!audio.duration)return;
+ progreso.style.width=(audio.currentTime/audio.duration*100)+"%";
+ actual.textContent=tiempo(audio.currentTime);
+});
+
+audio.addEventListener("loadedmetadata",()=>{
+ duracion.textContent=tiempo(audio.duration);
+});
+
+function cambiarProgreso(e){
+ if(!audio.duration)return;
+ const r=barra.getBoundingClientRect();
+ let p=(e.clientX-r.left)/r.width;
+ audio.currentTime=Math.max(0,Math.min(1,p))*audio.duration;
+}
+barra.addEventListener("click",cambiarProgreso);
+barra.addEventListener("touchmove",e=>{
+ const r=barra.getBoundingClientRect(),t=e.touches[0];
+ let p=(t.clientX-r.left)/r.width;
+ audio.currentTime=Math.max(0,Math.min(1,p))*audio.duration;
+},{passive:true});
+
+volumen.addEventListener("input",function(){
+ audio.volume=Number(this.value);
+ localStorage.setItem("hg_volumen",this.value);
+});
+
+/* ================= FAVORITOS ================= */
+
+function alternarFavorito(n){
+ const p=favoritos.indexOf(n);
+ p<0?favoritos.push(n):favoritos.splice(p,1);
+ guardarDatos();mostrarLista(buscador.value);mostrarFavoritos();
+}
+function agregarFavoritoActual(){alternarFavorito(indice)}
+
+function mostrarFavoritos(){
+ favoritosDiv.innerHTML="";
+ if(!favoritos.length){
+  favoritosDiv.innerHTML='<div class="panel-vacio">Todavía no tienes favoritos ❤️</div>';
+  return;
+ }
+ favoritos.forEach(n=>{
+  if(canciones[n])favoritosDiv.appendChild(crearCancion(n,false));
+ });
+}
+
+/* ================= HISTORIAL ================= */
+
+function agregarHistorial(n){
+ historial=historial.filter(x=>x!==n);
+ historial.unshift(n);
+ if(historial.length>10)historial.pop();
+ guardarDatos();mostrarHistorial();
+}
+function mostrarHistorial(){
+ historialDiv.innerHTML="";
+ if(!historial.length){
+  historialDiv.innerHTML='<div class="panel-vacio">Aquí aparecerán tus canciones reproducidas.</div>';
+  return;
+ }
+ historial.forEach(n=>{
+  if(canciones[n])historialDiv.appendChild(crearCancion(n,false));
+ });
+}
+
+/* ================= LISTA ================= */
+
+function crearCancion(n,fav=true){
+ const c=canciones[n],el=document.createElement("div");
+ el.className="cancion"+(n===indice?" actual":"");
+ const es=favoritos.includes(n);
+
+ el.innerHTML=`
+ <div class="mini-portada"><img src="${c.portada}" loading="lazy"></div>
+ <div class="info"><div class="nombre">${c.nombre}</div><div class="artista-lista">${c.artista}</div></div>
+ ${fav?`<button class="fav ${es?"activo":""}">${es?"♥":"♡"}</button>`:""}
+ <div class="play-lista">▶</div>`;
+
+ el.onclick=e=>{
+  if(e.target.classList.contains("fav")){alternarFavorito(n);return}
+  cambiarCancion(n);
+ };
+
+ let hold;
+ el.addEventListener("touchstart",()=>hold=setTimeout(()=>agregarACola(n),650),{passive:true});
+ el.addEventListener("touchend",()=>clearTimeout(hold),{passive:true});
+ return el;
+}
+
+function mostrarLista(f=""){
+ lista.innerHTML="";
+ f=f.toLowerCase().trim();
+
+ canciones.forEach((c,n)=>{
+  if(f&&!c.nombre.toLowerCase().includes(f)&&!c.artista.toLowerCase().includes(f))return;
+  lista.appendChild(crearCancion(n,true));
+ });
+
+ if(!lista.children.length)lista.innerHTML='<div class="panel-vacio">No se encontraron canciones.</div>';
+}
+
+buscador.addEventListener("input",()=>mostrarLista(buscador.value));
+
+/* ================= COLA ================= */
+
+function agregarACola(n){
+ if(cola.includes(n))return;
+ cola.push(n);mostrarCola();
+}
+function mostrarCola(){
+ colaDiv.innerHTML="";
+ if(!cola.length){
+  colaDiv.innerHTML='<div class="panel-vacio">Mantén presionada una canción para agregarla a la cola.</div>';
+  return;
+ }
+ cola.forEach((n,i)=>{
+  const c=canciones[n],el=document.createElement("div");
+  el.className="cancion";
+  el.innerHTML=`
+  <div class="mini-portada"><img src="${c.portada}"></div>
+  <div class="info"><div class="nombre">${i+1}. ${c.nombre}</div><div class="artista-lista">${c.artista}</div></div>
+  <div class="play-lista">▶</div>`;
+  el.onclick=()=>{
+   cola.splice(i,1);cambiarCancion(n);mostrarCola();
+  };
+  colaDiv.appendChild(el);
+ });
+}
+
+/* ================= PLAYLISTS ================= */
+
+function crearPlaylist(){
+ const i=document.getElementById("nombrePlaylist"),n=i.value.trim();
+ if(!n)return;
+ if(!playlists[n])playlists[n]=[];
+ i.value="";guardarDatos();mostrarPlaylists();
+}
+function mostrarPlaylists(){
+ playlistsDiv.innerHTML="";
+ const nombres=Object.keys(playlists);
+ if(!nombres.length){
+  playlistsDiv.innerHTML='<div class="panel-vacio">Crea tu primera playlist.</div>';
+  return;
+ }
+ nombres.forEach(n=>{
+  const el=document.createElement("div");
+  el.className="playlist-caja";
+  el.innerHTML=`<div class="playlist-titulo">🎵 ${n}</div><div class="playlist-cantidad">${playlists[n].length} canción(es)</div>`;
+  el.onclick=()=>mostrarCancionesPlaylist(n);
+  el.oncontextmenu=e=>{
+   e.preventDefault();
+   if(confirm("¿Eliminar la playlist "+n+"?")){
+    delete playlists[n];guardarDatos();mostrarPlaylists();
+   }
+  };
+  playlistsDiv.appendChild(el);
+ });
+}
+function mostrarCancionesPlaylist(n){
+ if(!playlists[n].length){alert("Esta playlist está vacía.");return}
+ alert("🎵 "+n+"\n\n"+playlists[n].map((x,i)=>(i+1)+". "+canciones[x].nombre).join("\n"));
+}
+
+/* ================= AJUSTES ================= */
+
+const botonAjustes=document.getElementById("botonAjustes");
+const menuColores=document.getElementById("menuColores");
+
+botonAjustes.onclick=e=>{
+ e.stopPropagation();menuColores.classList.toggle("abierto");
+};
+document.addEventListener("click",e=>{
+ if(!menuColores.contains(e.target)&&e.target!==botonAjustes)menuColores.classList.remove("abierto");
+});
+
+const temas={
+ azul:["rgba(0,140,255,.22)","rgba(0,80,255,.20)","#008cff"],
+ morado:["rgba(123,44,255,.23)","rgba(80,20,180,.21)","#8a2be2"],
+ rosado:["rgba(255,20,147,.23)","rgba(255,0,100,.20)","#ff1493"],
+ amarillo:["rgba(255,208,0,.21)","rgba(255,140,0,.19)","#ffd000"],
+ verde:["rgba(30,215,96,.22)","rgba(0,180,100,.20)","#1ed760"],
+ rojo:["rgba(255,48,48,.22)","rgba(180,0,40,.20)","#ff3030"]
+};
+
+document.querySelectorAll(".color").forEach(b=>b.onclick=()=>aplicarTema(b.dataset.color));
+
+function aplicarTema(n){
+ const t=temas[n];if(!t)return;
+ document.body.style.setProperty("--cp",t[0]);
+ document.body.style.setProperty("--cs",t[1]);
+ document.body.style.setProperty("--cb",t[2]);
+ localStorage.setItem("hg_tema",n);
+}
+
+const modoBtn=document.getElementById("modoBtn");
+modoBtn.onclick=()=>{
+ document.body.classList.toggle("claro");
+ const c=document.body.classList.contains("claro");
+ localStorage.setItem("hg_modo",c?"claro":"oscuro");
+ modoBtn.textContent=c?"☀️ Modo claro":"🌙 Modo oscuro";
+};
+
+document.getElementById("guardarBtn").onclick=()=>{
+ guardarDatos();
+ localStorage.setItem("hg_volumen",volumen.value);
+ localStorage.setItem("hg_velocidad",velocidad);
+ alert("✅ Preferencias guardadas");
+};
+
+/* ================= VELOCIDAD ================= */
+
+function abrirVelocidad(){document.getElementById("modalVelocidad").classList.add("abierto")}
+function cambiarVelocidad(v){
+ velocidad=v;audio.playbackRate=v;
+ localStorage.setItem("hg_velocidad",v);cerrarModales();
+}
+function abrirTemporizador(){document.getElementById("modalTemporizador").classList.add("abierto")}
+function cerrarModales(){document.querySelectorAll(".modal").forEach(m=>m.classList.remove("abierto"))}
+document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)cerrarModales()});
+
+/* ================= TEMPORIZADOR ================= */
+
+function iniciarTemporizador(min){
+ cancelarTemporizador();
+ temporizadorFinal=Date.now()+min*60000;
+ temporizador=setInterval(actualizarTemporizador,1000);
+ actualizarTemporizador();cerrarModales();
+}
+function actualizarTemporizador(){
+ const r=temporizadorFinal-Date.now();
+ if(r<=0){
+  audio.pause();cancelarTemporizador();
+  temporizadorInfo.textContent="😴 Reproducción detenida";
+  return;
+ }
+ const s=Math.floor(r/1000),m=Math.floor(s/60);
+ temporizadorInfo.textContent="😴 Se detendrá en "+m+":"+String(s%60).padStart(2,"0");
+}
+function cancelarTemporizador(){
+ if(temporizador)clearInterval(temporizador);
+ temporizador=null;temporizadorInfo.textContent="";
+}
+
+/* ================= GUARDADO ================= */
+
+function guardarDatos(){
+ localStorage.setItem("hg_favoritos",JSON.stringify(favoritos));
+ localStorage.setItem("hg_historial",JSON.stringify(historial));
+ localStorage.setItem("hg_playlists",JSON.stringify(playlists));
+}
+
+/* ================= PREFERENCIAS ================= */
+
+function cargarPreferencias(){
+ const t=localStorage.getItem("hg_tema");
+ if(t&&temas[t])aplicarTema(t);
+
+ if(localStorage.getItem("hg_modo")==="claro"){
+  document.body.classList.add("claro");
+  modoBtn.textContent="☀️ Modo claro";
+ }
+
+ const v=localStorage.getItem("hg_volumen");
+ if(v!==null){volumen.value=v;audio.volume=Number(v)}
+
+ if(localStorage.getItem("hg_aleatorio")==="true"){
+  aleatorio=true;document.getElementById("aleatorioBtn").classList.add("activo");
+ }
+ if(localStorage.getItem("hg_repetir")==="true"){
+  repetir=true;document.getElementById("repetirBtn").classList.add("activo");
+ }
+}
+
+function alternarAleatorio(){
+ aleatorio=!aleatorio;
+ document.getElementById("aleatorioBtn").classList.toggle("activo",aleatorio);
+ localStorage.setItem("hg_aleatorio",aleatorio);
+}
+function alternarRepetir(){
+ repetir=!repetir;
+ document.getElementById("repetirBtn").classList.toggle("activo",repetir);
+ localStorage.setItem("hg_repetir",repetir);
+}
+
+/* ================= GESTOS ================= */
+
+let toqueX=0,toqueY=0;
+const reproductor=document.getElementById("reproductor");
+
+reproductor.addEventListener("touchstart",e=>{
+ toqueX=e.changedTouches[0].screenX;
+ toqueY=e.changedTouches[0].screenY;
+},{passive:true});
+
+reproductor.addEventListener("touchend",e=>{
+ const x=e.changedTouches[0].screenX-toqueX;
+ const y=e.changedTouches[0].screenY-toqueY;
+ if(Math.abs(x)>70&&Math.abs(x)>Math.abs(y))x<0?siguiente():anterior();
+},{passive:true});
+
+/* ================= MEDIA SESSION ================= */
+
+function actualizarMediaSession(){
+ if(!("mediaSession"in navigator))return;
+ const c=canciones[indice];
+ try{
+  navigator.mediaSession.metadata=new MediaMetadata({
+   title:c.nombre,artist:c.artista,album:"HG.MUSIC",
+   artwork:[{src:c.portada,sizes:"512x512",type:"image/jpeg"}]
+  });
+ }catch(e){}
+}
+function actualizarMediaSessionPlayback(){
+ if(!("mediaSession"in navigator))return;
+ try{navigator.mediaSession.playbackState=audio.paused?"paused":"playing"}catch(e){}
+}
+
+if("mediaSession"in navigator){
+ try{
+  navigator.mediaSession.setActionHandler("play",()=>reproducir());
+  navigator.mediaSession.setActionHandler("pause",()=>audio.pause());
+  navigator.mediaSession.setActionHandler("nexttrack",siguiente);
+  navigator.mediaSession.setActionHandler("previoustrack",anterior);
+  navigator.mediaSession.setActionHandler("seekbackward",()=>audio.currentTime=Math.max(0,audio.currentTime-10));
+  navigator.mediaSession.setActionHandler("seekforward",()=>audio.currentTime=Math.min(audio.duration||Infinity,audio.currentTime+10));
+ }catch(e){}
+}
+
+/* ================= TECLADO ================= */
+
+document.addEventListener("keydown",e=>{
+ if(e.target.tagName==="INPUT")return;
+
+ if(e.code==="Space"){e.preventDefault();reproducir()}
+ if(e.code==="ArrowRight")audio.currentTime=Math.min(audio.duration||Infinity,audio.currentTime+5);
+ if(e.code==="ArrowLeft")audio.currentTime=Math.max(0,audio.currentTime-5);
+
+ if(e.code==="ArrowUp"){
+  volumen.value=Math.min(1,Number(volumen.value)+.05);
+  audio.volume=Number(volumen.value);
+ }
+ if(e.code==="ArrowDown"){
+  volumen.value=Math.max(0,Number(volumen.value)-.05);
+  audio.volume=Number(volumen.value);
+ }
+});
+
+/* ================= TIEMPO ================= */
+
+function tiempo(s){
+ if(!isFinite(s))return"0:00";
+ s=Math.floor(s);
+ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+
+/* ================= INICIAR ================= */
+
+cargarPreferencias();
+cargarCancion();
+mostrarLista();
+mostrarFavoritos();
+mostrarHistorial();
+mostrarPlaylists();
+mostrarCola();
+</script></body>
+</html>
