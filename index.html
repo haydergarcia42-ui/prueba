@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#008cff">
+<title>H.g Music</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;font-family:Arial,sans-serif;color:#fff;overflow-x:hidden;--c:#08f;background:radial-gradient(circle at 10% 0,#008cff35,transparent 35%),radial-gradient(circle at 90% 100%,#0028ff35,transparent 35%),linear-gradient(135deg,#050505,#0b0b0b,#050505)}
+button,input{font:inherit}button{user-select:none}
+
+.logo{font-family:"Brush Script MT","Segoe Script",cursive;font-weight:700;font-style:italic;letter-spacing:-5px;background:linear-gradient(120deg,var(--c),#fff,var(--c));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logo 7s ease infinite}
+.logo-big{font-size:clamp(58px,17vw,92px);transform:rotate(-5deg)}
+.logo-head{font-size:clamp(42px,11vw,62px);margin:0;transform:rotate(-4deg)}
+@keyframes logo{50%{background-position:100% 50%}}
+
+#inicio{position:fixed;inset:0;height:100dvh;background:radial-gradient(circle at 15% 15%,#008cff45,transparent 32%),radial-gradient(circle at 85% 85%,#7b2cff35,transparent 32%),linear-gradient(135deg,#030303,#090909,#030303);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;animation:inicio .8s ease 2s forwards}
+@keyframes inicio{to{opacity:0;visibility:hidden;pointer-events:none}}
+.cargando{width:52px;height:52px;margin-top:30px;border-radius:50%;border:5px solid #ffffff1f;border-top-color:#08f;border-right-color:#fff;animation:giro 1.5s linear infinite}
+@keyframes giro{to{transform:rotate(360deg)}}
+
+header{text-align:center;padding:18px 15px 10px;position:relative}
+.ajustes{position:absolute;right:15px;top:18px;width:45px;height:45px;border:0;border-radius:50%;background:#ffffff15;color:#fff;font-size:21px}
+.menu{position:fixed;top:72px;right:14px;width:min(310px,calc(100vw - 28px));max-height:80vh;overflow-y:auto;padding:18px;background:#10131af7;border:1px solid #ffffff1f;border-radius:22px;backdrop-filter:blur(20px);z-index:5000;opacity:0;visibility:hidden;transform:translateY(-10px) scale(.95);transition:.2s}
+.menu.abierto{opacity:1;visibility:visible;transform:none}
+.menu h3{text-align:center;margin:0 0 15px}.seccion{border-top:1px solid #ffffff14;padding-top:13px;margin-top:13px}.seccion small{color:#999;display:block;margin-bottom:10px}
+.colores{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;justify-items:center}
+.color{width:43px;height:43px;border-radius:50%;border:3px solid #fff4}.color:active{transform:scale(.88)}
+.azul{background:#08f}.morado{background:#8a2be2}.rosado{background:#ff1493}.amarillo{background:#ffd000}.verde{background:#1ed760}.rojo{background:#ff3030}.celeste{background:#00cfff}.turquesa{background:#00e5c3}.naranja{background:#ff7a00}.fucsia{background:#ff00a8}.lima{background:#a8ff00}.dorado{background:#ffb000}.coral{background:#ff5f5f}.menta{background:#00ff9d}.violeta{background:#b000ff}.indigo{background:#4b3cff}.azulclaro{background:#00aaff}.rosa{background:#ff69b4}
+
+.busqueda,.panel,.musica,.juego{width:min(calc(100% - 28px),560px);margin-left:auto;margin-right:auto}
+.busqueda{position:relative;margin-top:10px;margin-bottom:18px}
+.busqueda input{width:100%;padding:15px 18px 15px 45px;border:1px solid #fff1;border-radius:18px;background:#ffffff0e;color:#fff;outline:0}
+.icono{position:absolute;left:16px;top:13px;font-size:20px}
+
+.musica,.juego{margin-bottom:25px;padding:18px;background:linear-gradient(145deg,#151515,#090909);border:1px solid #ffffff18;border-radius:28px;box-shadow:0 20px 60px #000b;position:relative;overflow:hidden}
+.superior{display:flex;align-items:center;gap:15px}
+.portada{width:88px;height:88px;min-width:88px;border-radius:16px;overflow:hidden;background:#181818;transition:.8s}
+.portada img{width:100%;height:100%;object-fit:cover}
+.reproduciendo .portada{animation:girar 8s linear infinite;box-shadow:0 0 25px var(--c),0 0 45px var(--c)}
+.reproduciendo .portada.quieta{animation:none}
+@keyframes girar{to{transform:rotate(360deg)}}
+.datos{flex:1;min-width:0}.titulo{margin:0;font-size:clamp(19px,5vw,24px);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artista{margin-top:7px;color:#999;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.estado{margin-top:7px;font-size:11px;color:#777}
+
+.barra{height:7px;margin-top:18px;background:#ffffff25;border-radius:20px;overflow:hidden;cursor:pointer;touch-action:none}
+.progreso{width:0;height:100%;background:var(--c);box-shadow:0 0 10px var(--c),0 0 20px var(--c)}
+.tiempo{display:flex;justify-content:space-between;margin-top:7px;color:#888;font-size:11px}
+.controles{display:flex;justify-content:center;align-items:center;gap:35px;margin-top:17px}
+.boton,.play{border:0;display:flex;align-items:center;justify-content:center}.boton{width:54px;height:54px;border-radius:50%;background:#ffffff12;color:#fff;font-size:23px}.play{width:68px;height:68px;border-radius:50%;color:#000;font-size:27px;background:var(--c);box-shadow:0 0 30px var(--c)}
+.boton:active,.play:active,.extra:active{transform:scale(.92)}
+.extra-controles{display:flex;justify-content:center;gap:7px;margin-top:14px;flex-wrap:wrap}
+.extra{border:0;padding:8px 11px;border-radius:12px;background:#ffffff12;color:#fff;font-size:11px}.extra.activo{background:var(--c);color:#000}
+
+.eq{height:26px;margin-top:10px;display:flex;justify-content:center;align-items:flex-end;gap:3px}
+.eq span{width:3px;height:4px;border-radius:8px;background:var(--c);box-shadow:0 0 6px var(--c);transition:height .18s ease-out}
+
+.panel{margin-bottom:22px}.panel h2{font-size:20px;margin:0 0 13px}
+.vacio{padding:18px;border-radius:16px;background:#ffffff0d;color:#888;text-align:center}
+.cancion{width:100%;min-height:76px;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;background:#ffffff0e;border:1px solid #ffffff0d;border-radius:17px;cursor:pointer}
+.cancion.actual{border-color:var(--c);background:#ffffff1a}
+.mini{width:60px;height:60px;min-width:60px;border-radius:12px;overflow:hidden}.mini img{width:100%;height:100%;object-fit:cover}
+.info{flex:1;min-width:0;text-align:left}.nombre{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.artista-lista{margin-top:5px;color:#888;font-size:12px}
+.fav{border:0;background:none;color:#aaa;font-size:21px;padding:5px}.fav.activo{color:#ff3b81}
+.editar{border:0;background:#ffffff12;color:#fff;width:38px;height:38px;min-width:38px;border-radius:50%;font-size:20px}
+.editor{display:none;gap:6px;margin-top:9px}.cancion.editando .editor{display:flex}.editor button{border:0;background:#ffffff12;color:#fff;border-radius:10px;padding:7px 10px;font-size:11px}
+.playlist{background:#ffffff0e;padding:15px;border-radius:16px;margin-bottom:10px}.playlist b{display:block}.playlist small{color:#888}.playlist-canciones{margin-top:10px}
+.playlist-cancion{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #ffffff0d;font-size:12px;color:#bbb}.playlist-cancion img{width:32px;height:32px;border-radius:7px;object-fit:cover}
+.crear{display:flex;gap:8px}.crear input{flex:1;border:0;border-radius:12px;padding:12px;background:#ffffff12;color:#fff}.crear button,.nuevo{border:0;border-radius:12px;background:var(--c);color:#000;font-weight:bold;padding:11px 15px}
+
+.juego{margin-top:30px}.juego h2{text-align:center;margin:0 0 5px}.sub{text-align:center;color:#888;font-size:12px;margin-bottom:15px}.info-juego{display:flex;justify-content:space-between;color:#aaa;font-size:13px;margin-bottom:12px}
+#laberinto{display:grid;gap:2px;width:min(88vw,420px);aspect-ratio:1;margin:auto;padding:5px;border-radius:18px;background:#050505;touch-action:none}
+.celda{border-radius:3px;background:#101010}.pared{background:#202020}.camino{background:#07101a}.jugador{background:var(--c);box-shadow:0 0 12px var(--c);border-radius:50%;transform:scale(.72)}.meta{background:#1ed760;box-shadow:0 0 12px #1ed760;border-radius:50%;transform:scale(.72)}
+.controles-juego{display:grid;grid-template-columns:repeat(3,60px);justify-content:center;gap:8px;margin-top:18px}.controles-juego button{width:60px;height:52px;border:0;border-radius:15px;background:#ffffff12;color:#fff;font-size:22px}.vacio-btn{visibility:hidden}
+#mensaje{text-align:center;min-height:20px;margin-top:13px;color:#888;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#ffffff0d;border-radius:14px;padding:12px;text-align:center}.stat b{display:block;font-size:20px;color:var(--c)}.stat small{color:#888;font-size:10px}
+
+.mini-player{position:fixed;left:10px;right:10px;bottom:10px;z-index:4000;display:none;align-items:center;gap:10px;padding:9px 12px;background:#111e;border:1px solid #fff2;border-radius:18px;backdrop-filter:blur(18px)}
+.mini-player img{width:45px;height:45px;border-radius:10px;object-fit:cover}.mini-info{flex:1;min-width:0}.mini-info b,.mini-info small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-info small{color:#888;margin-top:3px}.mini-play{border:0;background:var(--c);width:42px;height:42px;border-radius:50%}
+
+.modal{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;padding:20px;background:#000a;backdrop-filter:blur(8px);z-index:8000;opacity:0;visibility:hidden;transition:.2s}.modal.abierto{opacity:1;visibility:visible}
+.modal-caja{width:min(430px,100%);max-height:85vh;overflow-y:auto;padding:22px;border-radius:22px;background:#141414;border:1px solid #fff2}.modal-caja h3{margin-top:0}.modal-opciones{display:grid;gap:9px}
+.modal-opcion,.cerrar{border:0;border-radius:13px;padding:13px;color:#fff;background:#ffffff14;text-align:left}.cerrar{width:100%;margin-top:15px;background:var(--c);color:#000;font-weight:bold;text-align:center}
+.cola-opcion,.seleccion-cancion{display:flex;align-items:center;gap:10px;padding:9px;border-radius:13px;background:#ffffff0d;margin-bottom:7px}.cola-opcion img,.seleccion-cancion img{width:48px;height:48px;border-radius:10px;object-fit:cover}
+.cola-opcion-info,.seleccion-info{flex:1;min-width:0}.cola-opcion-info b,.seleccion-info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cola-opcion-info small,.seleccion-info small{display:block;color:#888;margin-top:4px}
+.boton-agregar{border:0;background:var(--c);color:#000;font-weight:bold;border-radius:10px;padding:9px 11px}.seleccion-cancion input{width:20px;height:20px;accent-color:var(--c)}
+.guardar-playlist{width:100%;border:0;border-radius:13px;padding:13px;margin-top:10px;background:var(--c);color:#000;font-weight:bold}
+
+@media(max-width:600px){
+.mini-player{display:flex}body{padding-bottom:75px}.musica{padding:15px;border-radius:24px}.portada{width:78px;height:78px;min-width:78px}.controles{gap:25px}.boton{width:50px;height:50px}.play{width:64px;height:64px}.editar{width:35px;height:35px;min-width:35px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="inicio"><div class="logo logo-big">H.g</div><div class="cargando"></div><div style="margin-top:18px;font-size:12px;letter-spacing:3px;color:#888">CARGANDO MÚSICA...</div></div>
+
+<header>
+<h1 class="logo logo-head">H.g</h1>
+<button class="ajustes" id="ajustes">⚙️</button>
+<div class="menu" id="menu">
+<h3>🎨 Personalizar</h3>
+<div class="seccion"><small>Color manual</small><div class="colores">
+<button class="color azul" data-t="azul"></button><button class="color morado" data-t="morado"></button><button class="color rosado" data-t="rosado"></button><button class="color amarillo" data-t="amarillo"></button>
+<button class="color verde" data-t="verde"></button><button class="color rojo" data-t="rojo"></button><button class="color celeste" data-t="celeste"></button><button class="color turquesa" data-t="turquesa"></button>
+<button class="color naranja" data-t="naranja"></button><button class="color fucsia" data-t="fucsia"></button><button class="color lima" data-t="lima"></button><button class="color dorado" data-t="dorado"></button>
+<button class="color coral" data-t="coral"></button><button class="color menta" data-t="menta"></button><button class="color violeta" data-t="violeta"></button><button class="color indigo" data-t="indigo"></button>
+<button class="color azulclaro" data-t="azulclaro"></button><button class="color rosa" data-t="rosa"></button>
+</div></div>
+<div class="seccion"><small>Modo de apariencia</small><button class="extra activo" id="modo">🌙 Modo oscuro</button></div>
+<div class="seccion"><small>Volumen</small>🔊 Volumen<input id="volumen" type="range" min="0" max="1" step=".01" value="1" style="width:100%"></div>
+</div>
+</header>
+
+<div class="busqueda"><span class="icono">🔎</span><input id="buscar" type="search" placeholder="Buscar canciones..." autocomplete="off"></div>
+
+<div class="musica" id="reproductor">
+<div class="superior">
+<div class="portada" id="contenedorPortada"><img id="portada" src=""></div>
+<div class="datos"><h2 class="titulo" id="titulo">Sin canciones</h2><div class="artista" id="artista">Agrega tus canciones</div><div class="estado" id="estado">Listo para reproducir</div></div>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<div class="barra" id="barra"><div class="progreso" id="progreso"></div></div>
+<div class="tiempo"><span id="actual">0:00</span><span id="duracion">0:00</span></div>
+<div class="controles"><button class="boton" onclick="anterior()">⏮</button><button class="play" id="play" onclick="reproducir()">▶</button><button class="boton" onclick="siguiente()">⏭</button></div>
+
+<div class="extra-controles">
+<button class="extra activo" id="girarPortada" onclick="alternarGiroPortada()">🌀 Girar portada</button>
+<button class="extra" id="aleatorio" onclick="alternarAleatorio()">🔀 Aleatorio</button>
+<button class="extra" id="repetir" onclick="alternarRepetir()">🔁 Repetir</button>
+<button class="extra" onclick="favoritoActual()">❤️ Favorito</button>
+<button class="extra" onclick="abrirCola()">➕ Agregar a cola</button>
+<button class="extra" onclick="abrirVelocidad()">⏩ Velocidad</button>
+<button class="extra" onclick="abrirDormir()">😴 Dormir</button>
+</div>
+
+<div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<div id="temporizadorInfo" style="text-align:center;color:#888;font-size:11px;margin-top:7px"></div>
+</div>
+
+<div class="mini-player" id="mini"><img id="miniImg"><div class="mini-info"><b id="miniTitulo">Sin canciones</b><small id="miniArtista">—</small></div><button class="mini-play" onclick="reproducir()" id="miniPlay">▶</button></div>
+
+<div class="panel"><h2>🎶 Tus canciones</h2><div id="lista"></div></div>
+<div class="panel"><h2>❤️ Favoritos</h2><div id="favoritos"></div></div>
+<div class="panel"><h2>🕘 Historial</h2><div id="historial"></div></div>
+<div class="panel"><h2>⏭️ Cola</h2><div id="cola"></div></div>
+
+<div class="panel"><h2>📊 Estadísticas</h2><div class="stats">
+<div class="stat"><b id="totalPlay">0</b><small>Reproducciones</small></div>
+<div class="stat"><b id="minutos">0</b><small>Minutos</small></div>
+<div class="stat"><b id="topSong">—</b><small>Más escuchada</small></div>
+</div></div>
+
+<div class="panel"><h2>📁 Playlists</h2><div class="crear"><input id="nombrePlaylist" placeholder="Nombre de playlist"><button onclick="abrirCrearPlaylist()">Crear</button></div><div id="playlists" style="margin-top:12px"></div></div>
+
+<div class="juego">
+<h2>🎮 Laberinto</h2><div class="sub">Juega mientras escuchas tu música</div>
+<div class="info-juego"><span>Nivel: <b id="nivel">1</b></span><span>Movimientos: <b id="movimientos">0</b></span></div>
+<div id="laberinto"></div>
+<div class="controles-juego"><button class="vacio-btn"></button><button onclick="moverJugador(0,-1)">⬆️</button><button class="vacio-btn"></button><button onclick="moverJugador(-1,0)">⬅️</button><button onclick="moverJugador(0,1)">⬇️</button><button onclick="moverJugador(1,0)">➡️</button></div>
+<div id="mensaje">Llega al punto verde 🟢</div><button class="nuevo" onclick="nuevoLaberinto()" style="display:block;margin:13px auto 0">🔄 Nuevo laberinto</button>
+</div>
+
+<div class="modal" id="modalCola"><div class="modal-caja"><h3>➕ Agregar canción a la cola</h3><p style="color:#888;font-size:12px">Escoge la canción que quieres agregar:</p><div id="opcionesCola"></div><button class="cerrar" onclick="cerrarModales()">Cerrar</button></div></div>
+
+<div class="modal" id="modalPlaylist"><div class="modal-caja"><h3>📁 Crear playlist</h3><p style="color:#888;font-size:12px">Selecciona las canciones que quieres guardar:</p><div id="seleccionPlaylist"></div><button class="guardar-playlist" onclick="guardarPlaylistSeleccionada()">💾 Guardar playlist</button><button class="cerrar" onclick="cerrarModales()">Cancelar</button></div></div>
+
+<div class="modal" id="modalVelocidad"><div class="modal-caja"><h3>⏩ Velocidad</h3><div class="modal-opciones">
+<button class="modal-opcion" onclick="velocidadAudio(.5)">0.5x</button><button class="modal-opcion" onclick="velocidadAudio(.75)">0.75x</button><button class="modal-opcion" onclick="velocidadAudio(1)">1x</button><button class="modal-opcion" onclick="velocidadAudio(1.25)">1.25x</button><button class="modal-opcion" onclick="velocidadAudio(1.5)">1.5x</button><button class="modal-opcion" onclick="velocidadAudio(2)">2x</button>
+</div><button class="cerrar" onclick="cerrarModales()">Cerrar</button></div></div>
+
+<div class="modal" id="modalDormir"><div class="modal-caja"><h3>😴 Temporizador</h3><div class="modal-opciones">
+<button class="modal-opcion" onclick="dormir(5)">5 minutos</button><button class="modal-opcion" onclick="dormir(10)">10 minutos</button><button class="modal-opcion" onclick="dormir(20)">20 minutos</button><button class="modal-opcion" onclick="dormir(30)">30 minutos</button><button class="modal-opcion" onclick="dormir(60)">1 hora</button><button class="modal-opcion" onclick="cancelarDormir()">❌ Cancelar</button>
+</div><button class="cerrar" onclick="cerrarModales()">Cerrar</button></div></div>
+
+<script>
+
+/* TUS CANCIONES */
+const canciones=[
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787420012/qdum85iqmjhfasxvshhn.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787420001/ahzl7v3ixp9hf8xyyx0x.jpg",
+nombre:"FANATICO",
+artista:"BLESSD J ALVAREZ"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787434898/guixgooslaluzeb07mt1.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787434895/copeppcqzfkxem20zdem.jpg",
+nombre:"SORNERO",
+artista:"BLESSD"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787434903/gt6uodvjoywyhojo8fdq.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787434899/ke3pgm0un59pt8iu1ihd.jpg",
+nombre:"AGUA BENDITA",
+artista:"BLESSD GEEZYDEE"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787434910/mqhlaq7ym5smikampuk6.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787434904/iujgm2faqturrb1lvwo5.jpg",
+nombre:"ALÓ",
+artista:"BLESSD FRONTI TUTU JUNH TURY"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438179/jeafmppu7pfzu2wn2dxa.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438172/ms2f9fkvjqdrnhlac90m.jpg",
+nombre:"PROVOCATE",
+artista:"BLESSD CRISMJ"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438184/zuqpoupmevwbtsz9pqpd.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438180/esyxxe6da6cf0fsdsrlb.jpg",
+nombre:"QUE LE DE",
+artista:"BLESSD"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438194/ykye2eazrwd0y96w9xqk.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438186/j0i3uzkz1m8jgbuwhzqk.jpg",
+nombre:"ZOZO",
+artista:"BLESSD RANDY JAY WHEELER"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438200/co7hhryjh0arfvymkfpy.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438195/ozrldjaxkgot53ewgtne.jpg",
+nombre:"ANTIOQUIA",
+artista:"BLESSD CLARENT"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438208/e5r5knru96ghpoclrtkz.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438201/lxxdmlcibbc3c1enxpmp.jpg",
+nombre:"CIGARRO",
+artista:"BLESSD JON Z NEUTRO SHORTY"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438215/qmcgptmyw0chtuwllw9u.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438209/e5vizafljfjk24u7jjzi.jpg",
+nombre:"DOS AMORES",
+artista:"BLESSD"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438221/hpqejv0n8frdmlyizima.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438216/ksivummhar4tgkrzdljm.jpg",
+nombre:"LUBRIDERM",
+artista:"BLESSD KRIS R"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438226/lnol5ectx07prrfkzrx5.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438223/lduzgk41r4zcxo5fifpo.jpg",
+nombre:"MACDONALD",
+artista:"BLESSD KYBBA"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438235/m6uesv2f94xosluttcjz.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438228/udrhzojqnfdc2klzu5fc.jpg",
+nombre:"MENTE POSITIVA",
+artista:"BLESSD"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787438243/fttvfvngusmgkmjitwph.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787438236/eqidz6z7314irhpbjk39.jpg",
+nombre:"MERO TOTE",
+artista:"BLESSD DE LA ROSE"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787440087/zcfq7yvyzfcgqtbyopuv.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787440084/kqgvxnnk32zilido9xlu.jpg",
+nombre:"DIME BABY",
+artista:"CLARENT"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787440093/xxtvvmwlajblja8cttii.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787440089/hlrugcs3wjofj9uha1zz.jpg",
+nombre:"BUENAS",
+artista:"CLARENT"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787443700/xhuxy56wn7sf5aopnhtd.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787443697/l9npvtvhkn8ncxvx3dku.jpg",
+nombre:"LOVE",
+artista:"CLARENT"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787443717/mao7igmljvkadmqzxxi3.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787443714/sbylh0sxm4rhumcdiooc.jpg",
+nombre:"ENZACIAO",
+artista:"CLARENT"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787443746/msckptptakkaozbe9u1x.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787443742/pd4v71ljgpft6w1uzo5n.jpg",
+nombre:"HACE MUCHO TIEMPO",
+artista:"ELE A EL DOMINIO"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787445713/sfluki7skqp457uwcc02.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787445707/irsj0ibtpya7b0tjjytl.jpg",
+nombre:"CODEINE CRAZY",
+artista:"ELE A EL DOMINIO"
+},
+{
+archivo:"https://res.cloudinary.com/ghq37xg9/video/upload/v1787445748/ovxniai2jr1uevgwbgkj.mp3",
+portada:"https://res.cloudinary.com/ghq37xg9/image/upload/v1787445743/s6n9abb8luoojwit1hr9.jpg",
+nombre:"NO CONTESTA",
+artista:"ELE A EL DOMINIO"
+},
+ {
+    archivo: "https://res.cloudinary.com/ghq37xg9/video/upload/v1787458647/hilqv9yrpormdaj9awwc.mp3",
+    portada: "https://res.cloudinary.com/ghq37xg9/image/upload/v1787458641/rsiicjpxd10jsdd3ow0l.webp",
+    nombre: "MEDALLO",
+    artista: "BLESSD JUSTIN QUILES LENNY TAVÁREZ"
+  },
+  {
+    archivo: "https://res.cloudinary.com/ghq37xg9/video/upload/v1787458665/wukw7u50pji7n1oylwdh.mp3",
+    portada: "https://res.cloudinary.com/ghq37xg9/image/upload/v1787458660/jhcxa1xqsn3umr1yiska.webp",
+    nombre: "QUIEN TV REMIX",
+    artista: "BLESSD RYAN CASTRO"
+  },
+   {
+    archivo: "https://res.cloudinary.com/ghq37xg9/video/upload/v1787459140/pwbrmosyqfmvkv586v0k.mp3",
+    portada: "https://res.cloudinary.com/ghq37xg9/image/upload/v1787459134/rfuzmq5bgchhdonemvzt.webp",
+    nombre: "TENDENCIA GLOBAL",
+    artista: "BLESSD MYKE TOWERS"
+  },
+  {
+    archivo: "https://res.cloudinary.com/ghq37xg9/video/upload/v1787459176/bxcwsnk0silvrgskxz6u.mp3",
+    portada: "https://res.cloudinary.com/ghq37xg9/image/upload/v1787459171/rzcygykbarn6uoik1mhg.jpg",
+    nombre: "HACE TIEMPO",
+    artista: "BLESSD THE RUDEBOYZ"
+  },
+  {
+    archivo: "https://res.cloudinary.com/ghq37xg9/video/upload/v1787459207/yvm4dlvjornmw9ilidw0.mp3",
+    portada: "https://res.cloudinary.com/ghq37xg9/image/upload/v1787459203/gs8fpeywddd2fe6nj2ek.webp",
+    nombre: "MÍRAME",
+    artista: "BLESSD OVY ON THE DRUMS"
+  }
+
+
+];
+
+const $=id=>document.getElementById(id),audio=$("audio");
+let indice=0,cola=JSON.parse(localStorage.hgCola||"[]"),favoritos=JSON.parse(localStorage.hgFav||"[]"),historial=JSON.parse(localStorage.hgHist||"[]"),conteos=JSON.parse(localStorage.hgStats||"{}"),playlists=JSON.parse(localStorage.hgPlaylists||"{}");
+let aleatorio=localStorage.hgRandom==="1",repetir=localStorage.hgRepeat==="1",velocidad=+localStorage.hgSpeed||1,portadaGirando=localStorage.hgGiroPortada!=="0";
+let timer=null,timerFin=0,nivel=1,movimientos=0,mapa=[],jugador={x:1,y:1},meta={x:11,y:11},eqTimer=null;
+
+const temas={
+azul:["#008cff22","#0028ff22","#08f"],morado:["#7b2cff22","#5014b522","#8a2be2"],rosado:["#ff149322","#ff006622","#ff1493"],amarillo:["#ffd00022","#ff8c0022","#ffd000"],verde:["#1ed76022","#00b46422","#1ed760"],rojo:["#ff303022","#b4002822","#ff3030"],celeste:["#00cfff22","#0077aa22","#00cfff"],turquesa:["#00e5c322","#008f7a22","#00e5c3"],naranja:["#ff7a0022","#c94d0022","#ff7a00"],fucsia:["#ff00a822","#aa006f22","#ff00a8"],lima:["#a8ff0022","#60990022","#a8ff00"],dorado:["#ffb00022","#b8780022","#ffb000"],coral:["#ff5f5f22","#b52e2e22","#ff5f5f"],menta:["#00ff9d22","#00a86622","#00ff9d"],violeta:["#b000ff22","#7000a822","#b000ff"],indigo:["#4b3cff22","#29208022","#4b3cff"],azulclaro:["#00aaff22","#00669922","#00aaff"],rosa:["#ff69b422","#b53f7922","#ff69b4"]
+};
+
+function guardar(){
+localStorage.hgFav=JSON.stringify(favoritos);
+localStorage.hgHist=JSON.stringify(historial);
+localStorage.hgStats=JSON.stringify(conteos);
+localStorage.hgPlaylists=JSON.stringify(playlists);
+localStorage.hgCola=JSON.stringify(cola);
+localStorage.hgGiroPortada=portadaGirando?"1":"0";
+}
+
+function tiempo(s){return isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s)%60).padStart(2,"0"):"0:00"}
+function aplicarColor(c){document.body.style.setProperty("--c",c)}
+function colorInicial(){aplicarColor("#008cff")}
+
+function colorDesdePortada(url){
+const img=new Image();
+img.crossOrigin="anonymous";
+img.onload=()=>{
+try{
+const cv=document.createElement("canvas"),ctx=cv.getContext("2d");
+cv.width=cv.height=40;
+ctx.drawImage(img,0,0,40,40);
+const d=ctx.getImageData(0,0,40,40).data,v=[];
+for(let i=0;i<d.length;i+=4){
+let r=d[i],g=d[i+1],b=d[i+2];
+if(d[i+3]<100||r<25&&g<25&&b<25||r>220&&g>220&&b>220||Math.max(r,g,b)>190&&Math.max(r,g,b)-Math.min(r,g,b)<30)continue;
+v.push([r,g,b])
+}
+if(!v.length)return aplicarColor("#008cff");
+let c=v.reduce((a,x)=>[a[0]+x[0],a[1]+x[1],a[2]+x[2]],[0,0,0]).map(x=>Math.round(x/v.length));
+if(Math.max(...c)-Math.min(...c)<25)c=[0,140,255];
+else{let f=Math.min(1.45,220/Math.max(...c));c=c.map(x=>Math.min(210,Math.round(x*f)))}
+aplicarColor(`rgb(${c.join(",")})`);
+}catch(e){aplicarColor("#008cff")}
+};
+img.onerror=()=>aplicarColor("#008cff");
+img.src=url;
+}
+
+function cargar(n=indice){
+if(!canciones.length){
+$("titulo").textContent="Sin canciones";
+$("artista").textContent="Agrega tus canciones";
+$("estado").textContent="No hay canciones disponibles";
+$("portada").removeAttribute("src");
+$("miniTitulo").textContent="Sin canciones";
+$("miniArtista").textContent="—";
+return;
+}
+
+const c=canciones[n];
+
+$("portada").src=c.portada;
+$("titulo").textContent=c.nombre;
+$("artista").textContent=c.artista;
+$("miniImg").src=c.portada;
+$("miniTitulo").textContent=c.nombre;
+$("miniArtista").textContent=c.artista;
+
+audio.pause();
+audio.removeAttribute("src");
+audio.load();
+audio.src=c.archivo;
+audio.playbackRate=velocidad;
+
+actualizarGiroPortada();
+mostrarLista($("buscar").value);
+}
+
+function reproducir(){
+if(!canciones.length)return;
+if(audio.paused){
+audio.play().catch(()=>{$("estado").textContent="⚠️ No se pudo reproducir"});
+}else audio.pause();
+}
+
+function cambiar(n){
+if(!canciones.length)return;
+indice=(n+canciones.length)%canciones.length;
+audio.pause();
+cargar();
+$("progreso").style.width="0";
+$("actual").textContent="0:00";
+audio.play().catch(()=>{});
+}
+
+function siguiente(){
+if(!canciones.length)return;
+if(cola.length){
+cambiar(cola.shift());
+guardar();
+mostrarCola();
+return;
+}
+cambiar(aleatorio?Math.floor(Math.random()*canciones.length):(indice+1)%canciones.length);
+}
+
+function anterior(){
+if(!canciones.length)return;
+if(audio.currentTime>5){
+audio.currentTime=0;
+return;
+}
+cambiar((indice-1+canciones.length)%canciones.length);
+}
+
+function alternarGiroPortada(){
+portadaGirando=!portadaGirando;
+actualizarGiroPortada();
+guardar();
+}
+
+function actualizarGiroPortada(){
+$("contenedorPortada").classList.toggle("quieta",!portadaGirando);
+$("girarPortada").classList.toggle("activo",portadaGirando);
+$("girarPortada").textContent=portadaGirando?"🌀 Girar portada":"⏹️ Portada quieta";
+}
+
+audio.onplay=()=>{
+if(!canciones[indice])return;
+colorDesdePortada(canciones[indice].portada);
+$("play").textContent=$("miniPlay").textContent="⏸";
+$("estado").textContent="▶ Reproduciendo";
+$("reproductor").classList.add("reproduciendo");
+conteos[indice]=(conteos[indice]||0)+1;
+historial=[indice,...historial.filter(x=>x!==indice)].slice(0,10);
+guardar();
+mostrarHistorial();
+if(typeof estadisticas==="function")estadisticas();
+eqAnim();
+};
+
+audio.onpause=()=>{
+$("play").textContent=$("miniPlay").textContent="▶";
+$("estado").textContent="⏸ Pausado";
+$("reproductor").classList.remove("reproduciendo");
+detenerEQ();
+};
+
+audio.onended=()=>repetir?(audio.currentTime=0,audio.play()):siguiente();
+
+audio.ontimeupdate=()=>{
+if(!audio.duration)return;
+$("progreso").style.width=audio.currentTime/audio.duration*100+"%";
+$("actual").textContent=tiempo(audio.currentTime);
+};
+
+audio.onloadedmetadata=()=>$("duracion").textContent=tiempo(audio.duration);
+
+$("barra").onclick=e=>{
+if(!audio.duration)return;
+let r=$("barra").getBoundingClientRect();
+audio.currentTime=(e.clientX-r.left)/r.width*audio.duration;
+};
+
+function eqAnim(){
+if(eqTimer)return;
+eqTimer=setInterval(()=>{
+[...$("eq").children].forEach(x=>{
+x.style.height=(4+Math.random()*12)+"px";
+});
+},220);
+}
+
+function detenerEQ(){
+clearInterval(eqTimer);
+eqTimer=null;
+[...$("eq").children].forEach(x=>x.style.height="4px");
+}
+
+function cancion(n){
+let c=canciones[n],el=document.createElement("div");
+el.className="cancion"+(n===indice?" actual":"");
+el.innerHTML=`<div class="mini"><img src="${c.portada}" loading="lazy"></div><div class="info"><div class="nombre">${c.nombre}</div><div class="artista-lista">${c.artista}</div><div class="editor"><button class="subir">⬆️ Subir</button><button class="bajar">⬇️ Bajar</button></div></div><button class="fav ${favoritos.includes(n)?"activo":""}">${favoritos.includes(n)?"♥":"♡"}</button><button class="editar">⋮</button><span>▶</span>`;
+
+el.onclick=e=>{
+if(e.target.closest(".fav")){
+e.stopPropagation();
+favorito(n);
+return;
+}
+if(e.target.closest(".editar")){
+e.stopPropagation();
+el.classList.toggle("editando");
+return;
+}
+if(e.target.closest(".subir")){
+e.stopPropagation();
+moverCancion(n,-1);
+return;
+}
+if(e.target.closest(".bajar")){
+e.stopPropagation();
+moverCancion(n,1);
+return;
+}
+cambiar(n);
+};
+return el;
+}
+
+function mostrarLista(f=""){
+$("lista").innerHTML="";
+f=f.toLowerCase().trim();
+canciones.forEach((c,n)=>{
+if(!f||c.nombre.toLowerCase().includes(f)||c.artista.toLowerCase().includes(f))
+$("lista").appendChild(cancion(n));
+});
+if(!$("lista").children.length)
+$("lista").innerHTML='<div class="vacio">No hay canciones.</div>';
+}
+
+function favorito(n){
+let i=favoritos.indexOf(n);
+i<0?favoritos.push(n):favoritos.splice(i,1);
+guardar();
+mostrarLista($("buscar").value);
+mostrarFavoritos();
+}
+
+function favoritoActual(){
+if(canciones.length)favorito(indice);
+}
+
+function mostrarFavoritos(){
+$("favoritos").innerHTML=favoritos.length?"":'<div class="vacio">No tienes favoritos ❤️</div>';
+favoritos.forEach(n=>{
+if(canciones[n])$("favoritos").appendChild(cancion(n));
+});
+}
+
+function mostrarHistorial(){
+$("historial").innerHTML=historial.length?"":'<div class="vacio">Todavía no hay historial.</div>';
+historial.forEach(n=>{
+if(canciones[n])$("historial").appendChild(cancion(n));
+});
+}
+
+function agregarCola(n){
+if(!cola.includes(n))cola.push(n);
+guardar();
+mostrarCola();
+}
+
+function abrirCola(){
+let box=$("opcionesCola");
+box.innerHTML="";
+
+if(!canciones.length)
+box.innerHTML='<div class="vacio">No hay canciones.</div>';
+
+canciones.forEach((c,n)=>{
+let e=document.createElement("div");
+e.className="cola-opcion";
+e.innerHTML=`<img src="${c.portada}"><div class="cola-opcion-info"><b>${c.nombre}</b><small>${c.artista}</small></div><button class="boton-agregar">➕</button>`;
+e.querySelector("button").onclick=x=>{
+x.stopPropagation();
+agregarCola(n);
+x.target.textContent="✓";
+};
+box.appendChild(e);
+});
+
+$("modalCola").classList.add("abierto");
+}
+
+function mostrarCola(){
+$("cola").innerHTML=cola.length?"":'<div class="vacio">La cola está vacía.</div>';
+
+cola.forEach((n,i)=>{
+if(canciones[n]){
+let e=cancion(n);
+e.querySelector(".nombre").textContent=`${i+1}. ${canciones[n].nombre}`;
+$("cola").appendChild(e);
+}
+});
+}
+
+function abrirCrearPlaylist(){
+let nombre=$("nombrePlaylist").value.trim();
+if(!nombre)return $("nombrePlaylist").focus();
+
+let box=$("seleccionPlaylist");
+box.innerHTML="";
+
+canciones.forEach((c,n)=>{
+let e=document.createElement("label");
+e.className="seleccion-cancion";
+e.innerHTML=`<input type="checkbox" value="${n}"><img src="${c.portada}"><div class="seleccion-info"><b>${c.nombre}</b><small>${c.artista}</small></div>`;
+box.appendChild(e);
+});
+
+$("modalPlaylist").classList.add("abierto");
+}
+
+function guardarPlaylistSeleccionada(){
+let input=$("nombrePlaylist"),nombre=input.value.trim();
+if(!nombre)return cerrarModales();
+
+let seleccion=[...document.querySelectorAll("#seleccionPlaylist input:checked")].map(x=>+x.value);
+
+if(!seleccion.length){
+alert("Selecciona al menos una canción.");
+return;
+}
+
+playlists[nombre]=seleccion;
+input.value="";
+guardar();
+mostrarPlaylists();
+cerrarModales();
+}
+
+function mostrarPlaylists(){
+let box=$("playlists"),nombres=Object.keys(playlists);
+box.innerHTML=nombres.length?"":'<div class="vacio">Todavía no tienes playlists.</div>';
+
+nombres.forEach(nombre=>{
+let e=document.createElement("div"),arr=playlists[nombre];
+e.className="playlist";
+e.innerHTML=`<b>🎵 ${nombre}</b><small>${arr.length} canción(es)</small><div class="playlist-canciones">${arr.map(n=>canciones[n]?`<div class="playlist-cancion"><img src="${canciones[n].portada}"><span>${canciones[n].nombre}</span></div>`:"").join("")}</div>`;
+box.appendChild(e);
+});
+}
+
+function moverCancion(n,d){
+let x=n+d;
+if(x<0||x>=canciones.length)return;
+
+[canciones[n],canciones[x]]=[canciones[x],canciones[n]];
+
+[favoritos,historial,cola].forEach(a=>a.forEach((v,i)=>a[i]=v===n?x:v===x?n:v));
+
+Object.keys(playlists).forEach(k=>playlists[k].forEach((v,i)=>playlists[k][i]=v===n?x:v===x?n:v));
+
+let nc={};
+Object.entries(conteos).forEach(([k,v])=>nc[k==n?x:k==x?n:k]=v);
+conteos=nc;
+
+if(indice===n)indice=x;
+else if(indice===x)indice=n;
+
+guardar();
+mostrarLista($("buscar").value);
+mostrarFavoritos();
+mostrarHistorial();
+mostrarCola();
+mostrarPlaylists();
+
+if(typeof estadisticas==="function")estadisticas();
+}
+
+$("ajustes").onclick=e=>{
+e.stopPropagation();
+$("menu").classList.toggle("abierto");
+};
+
+document.onclick=e=>{
+if(!$("menu").contains(e.target)&&e.target!==$("ajustes"))
+$("menu").classList.remove("abierto");
+};
+
+document.querySelectorAll(".color").forEach(b=>b.onclick=()=>{
+let t=temas[b.dataset.t];
+aplicarColor(t[2]);
+localStorage.hgTema=b.dataset.t;
+});
+
+$("modo").onclick=()=>{
+localStorage.hgModo="0";
+};
+
+$("volumen").oninput=e=>{
+audio.volume=e.target.value;
+localStorage.hgVolumen=e.target.value;
+};
+
+function alternarAleatorio(){
+aleatorio=!aleatorio;
+$("aleatorio").classList.toggle("activo",aleatorio);
+localStorage.hgRandom=aleatorio?"1":"0";
+}
+
+function alternarRepetir(){
+repetir=!repetir;
+$("repetir").classList.toggle("activo",repetir);
+localStorage.hgRepeat=repetir?"1":"0";
+}
+
+function abrirVelocidad(){$("modalVelocidad").classList.add("abierto")}
+function abrirDormir(){$("modalDormir").classList.add("abierto")}
+function cerrarModales(){document.querySelectorAll(".modal").forEach(x=>x.classList.remove("abierto"))}
+
+function velocidadAudio(v){
+velocidad=v;
+audio.playbackRate=v;
+localStorage.hgSpeed=v;
+cerrarModales();
+}
+
+function dormir(min){
+cancelarDormir();
+timerFin=Date.now()+min*60000;
+timer=setInterval(actualizarDormir,1000);
+actualizarDormir();
+cerrarModales();
+}
+
+function actualizarDormir(){
+let r=timerFin-Date.now();
+if(r<=0){
+audio.pause();
+cancelarDormir();
+return;
+}
+$("temporizadorInfo").textContent=`😴 Se detendrá en ${tiempo(r/1000)}`;
+}
+
+function cancelarDormir(){
+clearInterval(timer);
+timer=null;
+$("temporizadorInfo").textContent="";
+}
+
+$("buscar").oninput=e=>mostrarLista(e.target.value);
+
+document.onkeydown=e=>{
+if(e.target.tagName==="INPUT")return;
+
+if(e.code==="Space"){
+e.preventDefault();
+reproducir();
+}
+
+let m={ArrowRight:[1,0],ArrowLeft:[-1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+if(m&&typeof moverJugador==="function")moverJugador(...m);
+};
+
+function crearMapa(){
+let t=13;
+mapa=Array.from({length:t},()=>Array(t).fill(0));
+
+for(let y=1;y<t-1;y++)
+for(let x=1;x<t-1;x++)
+if(Math.random()>.3||x===1&&y===1||x===11&&y===11)
+mapa[y][x]=1;
+
+for(let x=1;x<=11;x++)mapa[1][x]=1;
+for(let y=1;y<=11;y++)mapa[y][11]=1;
+
+jugador={x:1,y:1};
+meta={x:11,y:11};
+}
+
+/* =====================================================
+   CORRECCIÓN:
+   INICIALIZAR LA LISTA Y CARGAR LA PRIMERA CANCIÓN
+   ===================================================== */
+
+colorInicial();
+
+if(localStorage.hgTema&&temas[localStorage.hgTema])
+aplicarColor(temas[localStorage.hgTema][2]);
+
+if(localStorage.hgVolumen!==undefined){
+audio.volume=+localStorage.hgVolumen;
+$("volumen").value=audio.volume;
+}
+
+$("aleatorio").classList.toggle("activo",aleatorio);
+$("repetir").classList.toggle("activo",repetir);
+
+mostrarLista();
+mostrarFavoritos();
+mostrarHistorial();
+mostrarCola();
+mostrarPlaylists();
+cargar(0);
+
+</script>
+</body>
+</html>
