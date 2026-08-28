@@ -458,6 +458,8 @@
             opacity: 0;
             transform: translateY(24px);
             contain: layout paint;
+            content-visibility: auto;
+            contain-intrinsic-size: 0 420px;
         }
 
         .tarjeta-producto.visible {
@@ -537,7 +539,12 @@
             object-fit: cover;
             display: block;
             background-color: #1a1a1a;
-            transition: transform 0.6s ease;
+            opacity: 0;
+            transition: transform 0.6s ease, opacity 0.4s ease;
+        }
+
+        .imagen-producto.cargada {
+            opacity: 1;
         }
 
         @keyframes girar-marco {
@@ -1104,11 +1111,27 @@
            RENDIMIENTO: respeta a quienes prefieren menos animación
            y reduce el trabajo del navegador en equipos más lentos
            ========================================= */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+        /* =========================================
+           RESPALDO: si el navegador es muy antiguo y no soporta
+           el degradado cónico del borde giratorio, se muestra un
+           borde dorado fijo en vez de dejarlo invisible.
+           ========================================= */
+        .marco-imagen::before {
+            background: linear-gradient(90deg, var(--color-dorado), transparent, var(--color-dorado));
+        }
+
+        @supports (background: conic-gradient(#000, #fff)) {
+            .marco-imagen::before {
+                background: conic-gradient(
+                    from 0deg,
+                    transparent 0%,
+                    var(--color-dorado) 12%,
+                    transparent 24%,
+                    transparent 50%,
+                    var(--color-dorado) 62%,
+                    transparent 74%,
+                    transparent 100%
+                );
             }
         }
     </style>
@@ -1163,7 +1186,7 @@
 
         <div class="tarjeta-producto">
             <div class="marco-imagen">
-                <img data-img="mini" alt="Mini Salchipapa" class="imagen-producto" loading="lazy" decoding="async">
+                <img data-img="mini" alt="Mini Salchipapa" class="imagen-producto" loading="eager" decoding="async">
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Mini Salchipapa</h2>
@@ -1176,7 +1199,7 @@
         <div class="tarjeta-producto">
             <span class="insignia">🔥 Más pedida</span>
             <div class="marco-imagen">
-                <img data-img="sencilla" alt="Salchipapa Sencilla" class="imagen-producto" loading="lazy" decoding="async">
+                <img data-img="sencilla" alt="Salchipapa Sencilla" class="imagen-producto" loading="eager" decoding="async">
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa Sencilla</h2>
@@ -1188,7 +1211,7 @@
 
         <div class="tarjeta-producto">
             <div class="marco-imagen">
-                <img data-img="butifarra" alt="Salchipapa de Butifarra" class="imagen-producto" loading="lazy" decoding="async">
+                <img data-img="butifarra" alt="Salchipapa de Butifarra" class="imagen-producto" loading="eager" decoding="async">
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa de Butifarra</h2>
@@ -1200,7 +1223,7 @@
 
         <div class="tarjeta-producto">
             <div class="marco-imagen">
-                <img data-img="pollo" alt="Salchipapa de Pollo" class="imagen-producto" loading="lazy" decoding="async">
+                <img data-img="pollo" alt="Salchipapa de Pollo" class="imagen-producto" loading="eager" decoding="async">
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa de Pollo</h2>
@@ -1213,7 +1236,7 @@
         <div class="tarjeta-producto">
             <span class="insignia">⭐ La más completa</span>
             <div class="marco-imagen">
-                <img data-img="mixta" alt="Salchipapa Mixta" class="imagen-producto" loading="lazy" decoding="async">
+                <img data-img="mixta" alt="Salchipapa Mixta" class="imagen-producto" loading="eager" decoding="async">
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa Mixta</h2>
@@ -1310,8 +1333,8 @@
             audio: "https://res.cloudinary.com/nbf1ok8z/video/upload/v1787940464/audio_mp3.mp3",
             imagenes: {
                 logo:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                mini:      "PEGA_AQUI_EL_ENLACE_DE_LA_FOTO_MINI.jpg",
-                sencilla:  "PEGA_AQUI_EL_ENLACE_DE_LA_FOTO_SENCILLA.jpg",
+                mini:      "",
+                sencilla:  "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
                 butifarra: "PEGA_AQUI_EL_ENLACE_DE_LA_FOTO_BUTIFARRA.jpg",
                 pollo:     "PEGA_AQUI_EL_ENLACE_DE_LA_FOTO_POLLO.jpg",
                 mixta:     "PEGA_AQUI_EL_ENLACE_DE_LA_FOTO_MIXTA.jpg"
@@ -1319,12 +1342,20 @@
         };
 
         // Aplica automáticamente cada enlace de CONFIG a su imagen/audio
+        // y las carga todas de una vez (no espera a que el cliente baje),
+        // con un fundido suave para que no se vean "a los saltos".
         function cargarMultimedia() {
             document.querySelectorAll('img[data-img]').forEach(img => {
                 const clave = img.dataset.img;
-                if (CONFIG.imagenes[clave]) {
-                    img.src = CONFIG.imagenes[clave];
+                if (!CONFIG.imagenes[clave]) return;
+
+                if (img.complete && img.currentSrc) {
+                    img.classList.add('cargada');
+                    return;
                 }
+                img.addEventListener('load', () => img.classList.add('cargada'), { once: true });
+                img.addEventListener('error', () => img.classList.add('cargada'), { once: true });
+                img.src = CONFIG.imagenes[clave];
             });
         }
         cargarMultimedia();
