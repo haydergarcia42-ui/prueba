@@ -822,22 +822,23 @@
         }
 
         .modal-campo {
-            margin-bottom: 18px;
+            margin-bottom: 22px;
         }
 
         .modal-campo label {
             display: block;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--color-texto-secundario);
-            margin-bottom: 9px;
+            color: var(--color-texto-principal);
+            margin-bottom: 10px;
         }
 
         .modal-campo .campo-opcional {
             text-transform: none;
             letter-spacing: 0;
-            font-size: 11px;
+            font-size: 12px;
             color: #6b7280;
         }
 
@@ -880,13 +881,13 @@
         .modal-campo textarea {
             width: 100%;
             resize: none;
-            padding: 12px 14px;
-            border-radius: 12px;
+            padding: 14px 16px;
+            border-radius: 14px;
             border: 1px solid var(--color-borde);
             background: rgba(255,255,255,0.04);
             color: var(--color-texto-principal);
             font-family: 'Poppins', sans-serif;
-            font-size: 14px;
+            font-size: 16px;
             outline: none;
             transition: border-color 0.2s ease;
         }
@@ -924,9 +925,9 @@
            SELECTOR DE INGREDIENTES (CHIPS)
            ========================================= */
         .ingredientes-nota {
-            font-size: 12px;
-            font-weight: 300;
-            color: var(--color-texto-secundario);
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-texto-principal);
             margin-bottom: 12px;
             line-height: 1.5;
         }
@@ -1004,6 +1005,20 @@
             background: rgba(227, 93, 93, 0.14);
         }
 
+        .nota-domicilio {
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--color-texto-principal);
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .nota-domicilio span {
+            color: var(--color-dorado);
+            font-weight: 700;
+        }
+
         .modal-resumen {
             display: flex;
             justify-content: space-between;
@@ -1016,8 +1031,11 @@
         }
 
         .modal-resumen span:first-child {
-            font-size: 13px;
-            color: var(--color-texto-secundario);
+            font-size: 17px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: var(--color-texto-principal);
         }
 
         .modal-resumen span:last-child {
@@ -1285,7 +1303,7 @@
 
             <div class="separador" style="max-width: 100%; margin: 0 0 20px;">
                 <span class="linea"></span>
-                <span class="icono" style="font-size:11px; letter-spacing:1px; text-transform:uppercase; white-space:nowrap;">Datos para tu pedido</span>
+                <span class="icono" style="font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; white-space:nowrap;">Datos para tu pedido</span>
                 <span class="linea derecha"></span>
             </div>
 
@@ -1303,8 +1321,7 @@
 
             <div class="modal-campo">
                 <label>Punto de referencia <span class="campo-opcional">(opcional)</span></label>
-                <input type="text" id="mpReferencia" placeholder="Ej: Frente al parque / Al lado de la tienda 
-Don José">
+                <input type="text" id="mpReferencia" placeholder="Ej: Frente al parque, casa azul">
             </div>
 
             <div class="modal-campo">
@@ -1312,6 +1329,8 @@ Don José">
                 <div class="ingredientes-nota">Todos vienen incluidos por defecto. Toca el ingrediente que deseas retirar de tu comida.</div>
                 <div class="grid-ingredientes" id="gridIngredientes"></div>
             </div>
+
+            <div class="nota-domicilio">* El total incluye <span id="mpNotaDomicilio">$2.000</span> de domicilio</div>
 
             <div class="modal-resumen">
                 <span>Total estimado</span>
@@ -1329,7 +1348,7 @@ Don José">
         // Sube cada archivo a un sitio que entregue un "enlace directo"
         // (termina en .mp3, .jpg, .png, etc.) y pégalo entre las comillas.
         const CONFIG = {
-            audio: "https://res.cloudinary.com/nbf1ok8z/video/upload/v1787950628/audio_mp3_2.mp3",
+            audio: "https://res.cloudinary.com/nbf1ok8z/video/upload/v1788013653/WhatsApp_Video_2026-08-29_at_8.51.33_AM.mp4",
             imagenes: {
                 logo:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
                 mini:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
@@ -1462,6 +1481,7 @@ Don José">
 
         // ===================== MODAL DE PEDIDO =====================
         const NUMERO_WHATSAPP = '573016851905';
+        const COSTO_DOMICILIO = 2000; // Se suma al total de cualquier pedido (ej: $5.000 -> $7.000)
 
         const modalPedido = document.getElementById('modalPedido');
         const mpNombre = document.getElementById('mpNombre');
@@ -1479,6 +1499,7 @@ Don José">
         const mpReferencia = document.getElementById('mpReferencia');
         const mpErrorNombre = document.getElementById('mpErrorNombre');
         const mpErrorDireccion = document.getElementById('mpErrorDireccion');
+        const mpNotaDomicilio = document.getElementById('mpNotaDomicilio');
 
         let pedidoActual = { nombre: '', precio: 0, cantidad: 1 };
 
@@ -1486,9 +1507,13 @@ Don José">
             return '$' + numero.toLocaleString('es-CO');
         }
 
+        mpNotaDomicilio.textContent = formatearCOP(COSTO_DOMICILIO);
+
         function actualizarResumen() {
             mpCantidad.textContent = pedidoActual.cantidad;
-            mpTotal.textContent = formatearCOP(pedidoActual.precio * pedidoActual.cantidad);
+            const subtotal = pedidoActual.precio * pedidoActual.cantidad;
+            const totalConDomicilio = subtotal + COSTO_DOMICILIO;
+            mpTotal.textContent = formatearCOP(totalConDomicilio);
         }
 
         function limpiarErrores() {
@@ -1569,12 +1594,15 @@ Don José">
 
             const ingredientesExcluidos = Object.keys(estadoIngredientes).filter(ing => !estadoIngredientes[ing]);
 
+            const subtotalPedido = pedidoActual.precio * pedidoActual.cantidad;
+            const totalPedido = subtotalPedido + COSTO_DOMICILIO;
+
             let mensaje = `Datos para tu pedido:\n\nNombre completo: ${nombreCliente}\nDirección de entrega: ${direccion}`;
             if (referencia) {
                 mensaje += `\nPunto de referencia: ${referencia}`;
             }
 
-            mensaje += `\n\nHola, quiero pedir:\n${pedidoActual.cantidad}x ${pedidoActual.nombre} (${formatearCOP(pedidoActual.precio)} c/u)\nTotal: ${formatearCOP(pedidoActual.precio * pedidoActual.cantidad)}`;
+            mensaje += `\n\nHola, quiero pedir:\n${pedidoActual.cantidad}x ${pedidoActual.nombre} (${formatearCOP(pedidoActual.precio)} c/u)\nSubtotal: ${formatearCOP(subtotalPedido)}\nDomicilio: ${formatearCOP(COSTO_DOMICILIO)}\nTotal a pagar: ${formatearCOP(totalPedido)}`;
 
             if (ingredientesExcluidos.length > 0) {
                 mensaje += `\n\nSin: ${ingredientesExcluidos.join(', ')}`;
