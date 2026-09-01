@@ -407,7 +407,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             }, { threshold: 0.35 });
             videos.forEach(v => observadorVideos.observe(v));
         }
-        iniciarObservadorVideos();
+        // (el observador se activa más abajo, justo cuando el cliente presiona "Iniciar")
         function actualizarEstadoHorario() {
             const ahora = new Date();
             const dia = ahora.getDay();
@@ -438,6 +438,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             audioBienvenida.play().catch(() => {});
             pantallaBienvenida.classList.add('oculta');
             document.body.style.overflow = 'auto';
+            iniciarObservadorVideos();
             setTimeout(() => {
                 pantallaBienvenida.remove();
             }, 500);
