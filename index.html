@@ -73,8 +73,8 @@ h1 {font-family: 'Playfair Display', serif;font-size: 30px;font-weight: 700;colo
 .insignia {position: absolute;top: 14px;left: 14px;z-index: 3;background: rgba(10, 10, 10, 0.75);border: 1px solid rgba(203, 162, 90, 0.5);color: var(--color-dorado);font-size: 11px;letter-spacing: 1px;text-transform: uppercase;padding: 6px 12px;border-radius: 20px;box-shadow: 0 4px 14px rgba(203, 162, 90, 0.25);}
 .marco-imagen {position: relative;overflow: hidden;padding: 4px;}
 .marco-imagen::before {content: '';position: absolute;inset: 0;background: conic-gradient( from 0deg, transparent 0%, var(--color-dorado) 12%, transparent 24%, transparent 50%, var(--color-dorado) 62%, transparent 74%, transparent 100% );animation: girar-marco 6s linear infinite;will-change: transform;z-index: 0;}
-.marco-imagen::after {content: '';position: absolute;inset: 4px;background: linear-gradient(to top, rgba(20,20,20,0.85) 0%, transparent 45%);z-index: 2;pointer-events: none;}
-.imagen-producto {position: relative;z-index: 1;border-radius: 2px;width: 100%;height: 240px;object-fit: cover;display: block;background-color: #1a1a1a;opacity: 0;transition: transform 0.6s ease, opacity 0.4s ease;}
+.marco-imagen::after {content: '';position: absolute;inset: 4px;z-index: 2;pointer-events: none;}
+.imagen-producto {position: relative;z-index: 1;border-radius: 2px;width: 100%;aspect-ratio: 1536 / 1020;height: auto;object-fit: contain;display: block;background-color: #1a1a1a;opacity: 0;transition: transform 0.6s ease, opacity 0.4s ease;}
 .imagen-producto.cargada {opacity: 1;}
 @keyframes girar-marco {to  { transform: rotate(360deg); } }
 .tarjeta-producto:hover .imagen-producto {transform: scale(1.06);}
@@ -202,7 +202,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
     <div class="contenedor-menu" id="contenedorMenu">
         <div class="tarjeta-producto">
             <div class="marco-imagen">
-                <img data-img="mini" alt="Mini Salchipapa" class="imagen-producto" loading="eager" decoding="async">
+                <video data-video="mini" class="imagen-producto cargada" muted playsinline preload="metadata" poster="ejemplo-salchipapa.jpg" aria-label="Mini Salchipapa"></video>
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Mini Salchipapa</h2>
@@ -212,9 +212,8 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             </div>
         </div>
         <div class="tarjeta-producto">
-            <span class="insignia">🔥 Más pedida</span>
             <div class="marco-imagen">
-                <img data-img="sencilla" alt="Salchipapa Sencilla" class="imagen-producto" loading="eager" decoding="async">
+                <video data-video="sencilla" class="imagen-producto" muted playsinline preload="metadata" aria-label="Salchipapa Sencilla"></video>
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa Sencilla</h2>
@@ -225,7 +224,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
         </div>
         <div class="tarjeta-producto">
             <div class="marco-imagen">
-                <img data-img="butifarra" alt="Salchipapa de Butifarra" class="imagen-producto" loading="eager" decoding="async">
+                <video data-video="butifarra" class="imagen-producto" muted playsinline preload="metadata" aria-label="Salchipapa de Butifarra"></video>
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa de Butifarra</h2>
@@ -235,8 +234,9 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             </div>
         </div>
         <div class="tarjeta-producto">
+        <span class="insignia">🔥 Más pedida</span>
             <div class="marco-imagen">
-                <img data-img="pollo" alt="Salchipapa de Pollo" class="imagen-producto" loading="eager" decoding="async">
+                <video data-video="pollo" class="imagen-producto" muted playsinline preload="metadata" aria-label="Salchipapa de Pollo"></video>
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa de Pollo</h2>
@@ -248,7 +248,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
         <div class="tarjeta-producto">
             <span class="insignia">⭐ La más completa</span>
             <div class="marco-imagen">
-                <img data-img="mixta" alt="Salchipapa Mixta" class="imagen-producto" loading="eager" decoding="async">
+                <video data-video="mixta" class="imagen-producto" muted playsinline preload="metadata" aria-label="Salchipapa Mixta"></video>
             </div>
             <div class="info-producto">
                 <h2 class="nombre-producto">Salchipapa Mixta</h2>
@@ -351,12 +351,17 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
         const CONFIG = {
             audio: "https://res.cloudinary.com/nbf1ok8z/video/upload/v1788013653/WhatsApp_Video_2026-08-29_at_8.51.33_AM.mp4",
             imagenes: {
-                logo:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                mini:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                sencilla:  "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                butifarra: "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                pollo:     "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
-                mixta:     "https://res.cloudinary.com/nbf1ok8z/image/upload/v1787940494/WhatsApp_Image_2026-08-27_at_12.09.28_PM.jpg",
+                logo:      "https://res.cloudinary.com/nbf1ok8z/image/upload/v1788301683/WhatsApp_Image_2026-09-01_at_5.27.40_PM.jpg",
+                mini:      "",
+            },
+            // Pon aquí el enlace .mp4 de cada producto (por ejemplo, súbelo a Cloudinary como hiciste con el audio).
+            // Si dejas un valor vacío "", esa tarjeta se queda sin video (puedes combinarlo con CONFIG.imagenes si prefieres foto para alguno).
+            videos: {
+                mini:      "https://res.cloudinary.com/nbf1ok8z/video/upload/v1788300074/WhatsApp_Video_2026-08-31_at_10.33.24_AM.mp4",
+                sencilla:  "https://res.cloudinary.com/nbf1ok8z/video/upload/v1788300074/WhatsApp_Video_2026-08-31_at_10.33.24_AM.mp4",
+                butifarra: "",
+                pollo:     "",
+                mixta:     "",
             }
         };
         function cargarMultimedia() {
@@ -373,6 +378,36 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             });
         }
         cargarMultimedia();
+        // ---- Videos del menú: se cargan y luego se reproducen UNA sola vez cuando la tarjeta entra en pantalla ----
+        function cargarVideosProducto() {
+            document.querySelectorAll('video[data-video]').forEach(video => {
+                const clave = video.dataset.video;
+                const url = CONFIG.videos[clave];
+                if (!url) return;
+                video.addEventListener('loadeddata', () => video.classList.add('cargada'), { once: true });
+                video.addEventListener('error', () => video.classList.add('cargada'), { once: true });
+                video.src = url;
+            });
+        }
+        cargarVideosProducto();
+        function iniciarObservadorVideos() {
+            const videos = document.querySelectorAll('video[data-video]');
+            if (!videos.length) return;
+            const observadorVideos = new IntersectionObserver((entradas) => {
+                entradas.forEach(entrada => {
+                    const video = entrada.target;
+                    if (entrada.isIntersecting && video.src) {
+                        // Reproduce la animación desde el inicio y la deja "congelada" en el último
+                        // fotograma al terminar (no tiene loop, así que el navegador se queda ahí).
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                        observadorVideos.unobserve(video);
+                    }
+                });
+            }, { threshold: 0.35 });
+            videos.forEach(v => observadorVideos.observe(v));
+        }
+        iniciarObservadorVideos();
         function actualizarEstadoHorario() {
             const ahora = new Date();
             const dia = ahora.getDay();
@@ -389,7 +424,7 @@ footer .footer-logo {font-family: 'Playfair Display', serif;font-size: 20px;font
             } else {
                 punto.classList.add('cerrado');
                 punto.classList.remove('abierto');
-                texto.textContent = 'Cerrado ahora · Sáb y dom, 6:00–11:00 pm';
+                texto.textContent = 'Cerrado ahora · Sáb y dom, 6:00 pm – 11:00 pm';
             }
         }
         actualizarEstadoHorario();
